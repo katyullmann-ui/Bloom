@@ -564,4 +564,36 @@ const prior=render;render=function(){prior();bloomRefList()};bloomRefList();
 }
 render();
 })();
+</script><style id="bloom-food-fix">
+#log{max-width:600px;margin:auto}
+#log>.bloom-food-simple{display:none!important}
+#log>.bloom-ref-food{display:block!important;visibility:visible!important;opacity:1!important}
+#log>#homeFoodLog{display:none!important}
+#log>.card:has(#entries){display:none!important}
+#log>.bloom-food-today{display:block!important}
+#log>.bloom-food-today .quickfood-item{padding:10px 0}
+#log>.bloom-food-today .quickfood-item button{border:0;background:none;color:#a05b58}
+#log .bloom-ref-results{max-height:280px}
+#log .bloom-ref-food{margin-bottom:12px}
+#log .bloom-ref-food .field{width:100%}
+</style>
+<script>
+(function(){
+const log=document.getElementById('log');if(!log)return;
+let title=Array.from(log.children).find(x=>x.querySelector?.('h2')?.textContent.includes('Log your food'));
+if(!title){title=document.createElement('div');title.innerHTML='<h2>Log your food.</h2><p class="small">Add something you logged before, or paste from ChatGPT.</p>';}
+const oldEntries=document.getElementById('homeFoodLog');
+if(oldEntries)oldEntries.style.display='none';
+let search=document.getElementById('bloomRefSearch')?.closest('.bloom-ref-food');
+let paste=document.getElementById('bloomRefPaste')?.closest('.bloom-ref-food');
+if(!search){search=document.createElement('section');search.className='card bloom-ref-food';search.innerHTML='<div class="bloom-ref-tabs"><button class="selected" onclick="bloomRefMode(\'recent\')">Recent</button><button onclick="bloomRefMode(\'saved\')">Saved</button></div><input class="field" id="bloomRefSearch" placeholder="Find a previously logged food" oninput="bloomRefList()"><div class="bloom-ref-results" id="bloomRefResults"></div>';}
+if(!paste){paste=document.createElement('section');paste.className='card bloom-ref-food';paste.innerHTML='<h3>Paste from ChatGPT</h3><textarea class="field" id="bloomRefPaste" placeholder="Paste your BLOOM FOOD entry here..."></textarea><button class="btn small" onclick="bloomRefPasteFood()">Add food</button><div id="bloomRefFeedback" class="small">Food will save to the selected date and update Home.</div>';}
+let today=document.getElementById('bloomFoodTodayFixed');
+if(!today){today=document.createElement('section');today.id='bloomFoodTodayFixed';today.className='card bloom-food-today';today.innerHTML='<h3 style="margin-top:0">Today\'s food</h3><div id="bloomFoodTodayItems"></div>';}
+log.insertBefore(title,log.firstChild);title.insertAdjacentElement('afterend',search);search.insertAdjacentElement('afterend',paste);paste.insertAdjacentElement('afterend',today);
+for(const el of Array.from(log.children)){if(el===title||el===search||el===paste||el===today)continue;if(el.id==='homeFoodLog')el.style.display='none';}
+const prev=render;
+render=function(){prev();const target=document.getElementById('bloomFoodTodayItems');if(!target)return;const items=(day().items||[]).filter(x=>!x.bloomWater&&!(Number(x.fluid)>0&&Number(x.cal||0)===0&&/water/i.test(x.name)));target.innerHTML=items.length?items.map(x=>'<div class="quickfood-item"><div><b>'+bloomSafe(x.name)+'</b><div class="small">'+Math.round(Number(x.cal)||0)+' cal · '+(Number(x.protein)||0).toFixed(1)+'g protein</div></div></div>').join(''):'<p class="small">No foods added for this date yet.</p>';};
+render();
+})();
 </script></body></html>
