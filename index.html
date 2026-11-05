@@ -429,7 +429,7 @@ if(!chosen){alert('Choose: '+choices.join(', '));return}
 bloomChangeDay(i,chosen);
 };
 const prev=render;
-render=function(){prev();const target=document.getElementById('bloomTodayFoods');if(!target)return;const items=(day().items||[]).filter(x=>!x.bloomWater&&!(Number(x.fluid)>0&&Number(x.cal||0)===0&&/water/i.test(x.name)));
+render=function(){prev();const target=document.getElementById('bloomTodayFoods');if(!target)return;const items=(day().items||[]);
 target.innerHTML=items.length?items.map(x=>'<div class="quickfood-item"><div><b>'+bloomSafe(x.name)+'</b><div class="small">'+Math.round(Number(x.cal)||0)+' cal · '+(Number(x.protein)||0).toFixed(1)+' g protein</div></div></div>').join(''):'<p class="small">No food logged for this date yet.</p>';
 };
 render();
@@ -711,7 +711,7 @@ card.classList.add('bloom-food-nutrition');
 const heading=card.querySelector('h3');if(heading)heading.textContent='🥑 Daily nutrition';
 function move(){
 const paste=document.getElementById('bloomRefPaste')?.closest('.bloom-ref-food');
-if(paste&&card.previousElementSibling!==paste)paste.insertAdjacentElement('afterend',card);
+if(paste&&card.previousElementSibling!==paste)paste.insertAdjacentElement('afterend',card);const list=document.getElementById('bloomFoodTodayFixed');if(list&&card.nextElementSibling!==list)card.insertAdjacentElement('afterend',list);
 }
 move();
 const previous=render;
