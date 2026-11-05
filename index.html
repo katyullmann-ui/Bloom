@@ -291,4 +291,24 @@ const oldRender=render;
 render=function(){oldRender();bloomSimpleList()};
 render();
 })();
+</script><style>
+#homeSupplements{display:none!important}
+#homeNutrients{display:none!important}
+#nutrients{display:none!important}
+#log>.card:has(>h3:first-child){ }
+#log>.card:has(>h3[style*="margin-top:0"]){display:none!important}
+</style>
+<script>
+(function(){
+const log=document.getElementById('log');
+for(const heading of log.querySelectorAll(':scope > h3')){
+if(heading.textContent.trim()==='Food vs supplements')heading.style.display='none';
+}
+const nutrients=document.getElementById('homeNutrients');
+if(nutrients)nutrients.closest('.home-section').style.display='none';
+const supplements=document.getElementById('homeSupplements');
+if(supplements)supplements.style.display='none';
+const quick=Array.from(log.children).find(el=>el.classList.contains('card')&&el.querySelector('h3')?.textContent.trim()==='Quick add fluids');
+if(quick)quick.style.display='none';
+})();
 </script></body></html>
