@@ -622,4 +622,20 @@ modal.addEventListener('click',e=>{if(e.target===modal)close()});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')close()});
 document.addEventListener('click',e=>{const button=e.target.closest?.('#workouts .bloom-pencil');if(!button)return;e.preventDefault();e.stopPropagation();const row=button.closest('.bloom-day');const rows=Array.from(document.querySelectorAll('#bloomSchedule .bloom-day'));const i=rows.indexOf(row);if(i>=0)window.bloomEditSchedule(i)},true);
 })();
+</script><style id="bloom-step-single-input">
+#home .home-steps>#homeStepInput,#home .home-steps>#homeStepInput+.btn{display:none!important}
+#home .home-steps>#homeStepCaption{display:none!important}
+#home .home-steps>#homeStepEditor{display:none!important}
+#home .home-steps>#bloomRefSteps{display:none!important}
+</style>
+<script>
+(function(){
+const card=document.querySelector('#home .home-steps');if(!card)return;
+const duplicate=card.querySelector(':scope > #homeStepInput');
+if(duplicate)duplicate.style.display='none';
+const button=duplicate?.nextElementSibling;if(button?.textContent.trim()==='Save steps')button.style.display='none';
+const caption=card.querySelector(':scope > #homeStepCaption');if(caption)caption.style.display='none';
+const primary=document.getElementById('bloomRefSteps');
+if(primary){primary.setAttribute('aria-label','Enter today\'s steps');}
+})();
 </script></body></html>
