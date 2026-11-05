@@ -785,7 +785,7 @@ add.id='bloomAddWorkoutCard';
 const scheduleCard=schedule.closest('.card');
 if(scheduleCard){
 const btn=document.createElement('button');
-btn.id='bloomQuickAddWorkout';btn.type='button';btn.textContent='+ Add a second workout';
+btn.id='bloomQuickAddWorkout';btn.type='button';btn.setAttribute('onclick','bloomOpenExtraWorkout();return false');btn.textContent='+ Add a second workout';
 const hint=document.createElement('p');hint.className='bloom-add-hint';hint.textContent='Adds another workout without changing your weekly plan.';
 schedule.insertAdjacentElement('afterend',hint);hint.insertAdjacentElement('afterend',btn);
 scheduleCard.insertAdjacentElement('afterend',add);
@@ -819,10 +819,11 @@ if(list)add.insertAdjacentElement('afterend',list);
 (function(){
 const modal=document.getElementById('bloomExtraWorkoutModal');
 const btn=document.getElementById('bloomQuickAddWorkout');
-if(!modal||!btn)return;
+if(!modal)return;
+window.bloomOpenExtraWorkout=function(){document.getElementById('bloomExtraDate').value=typeof dayKey==='function'?dayKey():document.getElementById('date').value;document.getElementById('bloomExtraNotes').value='';modal.classList.add('open');document.getElementById('bloomExtraType').focus()};
 function close(){modal.classList.remove('open')}
 function open(){document.getElementById('bloomExtraDate').value=dayKey();document.getElementById('bloomExtraNotes').value='';modal.classList.add('open');document.getElementById('bloomExtraType').focus()}
-btn.addEventListener('click',function(e){e.preventDefault();e.stopImmediatePropagation();open()},true);
+if(btn)btn.addEventListener('click',function(e){e.preventDefault();e.stopImmediatePropagation();window.bloomOpenExtraWorkout()},true);
 document.getElementById('bloomExtraCancel').addEventListener('click',close);
 modal.addEventListener('click',e=>{if(e.target===modal)close()});
 document.getElementById('bloomExtraSave').addEventListener('click',function(){
@@ -834,4 +835,4 @@ document.getElementById('date').value=date;
 save();close();render();
 });
 })();
-</script></body></html>
+</script><script>window.bloomOpenExtraWorkout=window.bloomOpenExtraWorkout||function(){var m=document.getElementById('bloomExtraWorkoutModal');if(m){document.getElementById('bloomExtraDate').value=document.getElementById('date').value;m.classList.add('open')}};</script></body></html>
