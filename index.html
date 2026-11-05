@@ -769,4 +769,33 @@ document.getElementById('bloomWorkExtraList').innerHTML=markup;
 }
 const prev=render;render=function(){prev();refresh()};refresh();
 })();
+</script><style id="bloom-add-workout-visible">
+#workouts #bloomQuickAddWorkout{display:block;width:100%;margin:14px 0 6px;padding:14px 16px;border:0;border-radius:15px;background:#326b59;color:white;font-weight:700;font-size:16px}
+#workouts #bloomAddWorkoutCard{scroll-margin-top:20px;border:2px solid #d9eae1}
+#workouts #bloomAddWorkoutCard .field{margin-bottom:12px}
+#workouts .bloom-add-hint{font-size:13px;color:#80928b;margin:6px 0 0}
+</style>
+<script>
+(function(){
+const work=document.getElementById('workouts');
+const schedule=document.getElementById('bloomSchedule');
+const add=document.getElementById('customWorkoutDate')?.closest('.card');
+if(!work||!schedule||!add)return;
+add.id='bloomAddWorkoutCard';
+const scheduleCard=schedule.closest('.card');
+if(scheduleCard){
+const btn=document.createElement('button');
+btn.id='bloomQuickAddWorkout';btn.type='button';btn.textContent='+ Add a second workout';
+const hint=document.createElement('p');hint.className='bloom-add-hint';hint.textContent='Adds another workout without changing your weekly plan.';
+schedule.insertAdjacentElement('afterend',hint);hint.insertAdjacentElement('afterend',btn);
+scheduleCard.insertAdjacentElement('afterend',add);
+btn.addEventListener('click',()=>{const input=document.getElementById('customWorkoutDate');input.value=dayKey();add.scrollIntoView({behavior:'smooth',block:'start'});setTimeout(()=>document.getElementById('customWorkoutType')?.focus({preventScroll:true}),250)});
+}
+const heading=add.querySelector('h3');if(heading)heading.textContent='Add another workout';
+const label=add.querySelector('label');if(label)label.textContent='Date for additional workout';
+const note=document.createElement('p');note.className='small';note.textContent='Your scheduled workout stays in place. You can add multiple workouts on the same date.';
+heading?.insertAdjacentElement('afterend',note);
+const list=document.getElementById('bloomWorkExtraList')?.closest('.card');
+if(list)add.insertAdjacentElement('afterend',list);
+})();
 </script></body></html>
