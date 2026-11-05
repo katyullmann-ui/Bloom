@@ -717,4 +717,30 @@ move();
 const previous=render;
 render=function(){previous();move()};
 })();
+</script><style>
+.bloom-multi-workouts .bloom-multi-row{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid #e8e8e2}
+.bloom-multi-workouts .bloom-multi-row:last-child{border-bottom:0}
+.bloom-multi-workouts .small{margin-top:3px}
+</style>
+<script>
+(function(){
+const work=document.getElementById('workouts'),home=document.getElementById('home');
+if(!work||!home)return;
+const add=work.querySelector('#customWorkoutDate')?.closest('.card');
+if(add){add.querySelector('h3').textContent='Log another workout';const help=document.createElement('p');help.className='small';help.textContent='Add as many separate workouts as you like for the selected day. Each is saved individually.';add.querySelector('h3').insertAdjacentElement('afterend',help);
+const sel=document.getElementById('customWorkoutType');if(sel&&!sel.querySelector('option[value="walking"]'))sel.insertAdjacentHTML('beforeend','<option value="walking">Walking</option><option value="recovery">Recovery walk</option>');}
+const homeCard=document.createElement('div');homeCard.className='card bloom-multi-workouts';homeCard.innerHTML='<div class="row"><h3 style="margin:0">Additional workouts</h3><button class="btn secondary small" onclick="tab(\'workouts\')">+ Add workout</button></div><div id="bloomHomeExtraWorkouts"></div>';
+const movement=document.getElementById('movement')?.closest('.card');
+if(movement)movement.insertAdjacentElement('afterend',homeCard);
+const workCard=document.createElement('div');workCard.className='card bloom-multi-workouts';workCard.innerHTML='<h3 style="margin-top:0">Workouts logged for this date</h3><div id="bloomWorkExtraList"></div>';
+if(add)add.insertAdjacentElement('afterend',workCard);
+function refresh(){
+const entries=(state.customWorkouts||[]).filter(w=>w.date===dayKey());
+const label=w=>({lagree:'Lagree',upper:'Upper body',lower:'Lower body / glutes',mobility:'Mobility',walking:'Walking',recovery:'Recovery walk',other:'Other workout'})[w.type]||w.type;
+const markup=entries.length?entries.map(w=>'<div class="bloom-multi-row"><div><b>'+esc(label(w))+'</b><div class="small">'+esc(w.note||'Logged workout')+'</div></div><button class="btn secondary small" onclick="deleteCustomWorkout(\''+w.id+'\')" aria-label="Remove workout">Remove</button></div>').join(''):'<p class="small">No additional workouts logged for this date.</p>';
+document.getElementById('bloomHomeExtraWorkouts').innerHTML=markup;
+document.getElementById('bloomWorkExtraList').innerHTML=markup;
+}
+const prev=render;render=function(){prev();refresh()};refresh();
+})();
 </script></body></html>
