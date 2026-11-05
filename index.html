@@ -638,4 +638,33 @@ const caption=card.querySelector(':scope > #homeStepCaption');if(caption)caption
 const primary=document.getElementById('bloomRefSteps');
 if(primary){primary.setAttribute('aria-label','Enter today\'s steps');}
 })();
+</script><script>
+(function(){
+const prior=render;
+render=function(){
+prior();
+const selected=new Date(dayKey()+'T12:00:00');
+const weekday=(selected.getDay()+6)%7;
+const monday=new Date(selected);monday.setDate(selected.getDate()-weekday);
+let priorSteps=0;
+for(let i=0;i<weekday;i++){
+const d=new Date(monday);d.setDate(monday.getDate()+i);
+const key=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+priorSteps+=Math.max(0,Number(state.days[key]?.steps)||0);
+}
+const weeklyGoal=Number(state.goals.steps)||60000;
+const daysRemaining=7-weekday;
+const adjustedGoal=Math.ceil(Math.max(0,weeklyGoal-priorSteps)/daysRemaining);
+const todaySteps=Math.max(0,Number(day().steps)||0);
+const label=document.getElementById('bloomRefStepLabel');
+const status=document.getElementById('bloomRefStepStatus');
+const bar=document.getElementById('homeStepFill');
+if(label)label.textContent='Today · Adjusted goal '+adjustedGoal.toLocaleString();
+if(status)status.textContent=todaySteps>=adjustedGoal?'✓ Daily goal reached! '+(todaySteps-adjustedGoal).toLocaleString()+' extra steps':(adjustedGoal-todaySteps).toLocaleString()+' steps left today';
+if(bar)bar.style.width=(adjustedGoal===0?100:Math.min(100,todaySteps/adjustedGoal*100))+'%';
+const caption=document.getElementById('homeStepCaption');
+if(caption)caption.textContent='Adjusted daily goal: '+adjustedGoal.toLocaleString()+' steps';
+};
+render();
+})();
 </script></body></html>
