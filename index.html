@@ -4,6 +4,72 @@
 .home-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}.home-heading h2{margin:3px 0}.home-heading .subtitle{margin:0}.home-steps .number{font-size:28px;font-weight:800}.home-steps .bar{margin:12px 0 7px}.home-section{padding:18px;margin-top:12px}.home-section h3{margin:0 0 14px;font-size:19px}.text-link{border:0;background:none;color:var(--green);font-size:13px;padding:5px}.nutri-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-bottom:15px}.summary-tile{border-radius:15px;padding:12px 4px;text-align:center;background:#e7f4ed}.summary-tile.tracking{background:#fff3e0}.summary-tile.low{background:#faeceb}.summary-tile strong{font-size:24px;display:block}.summary-tile span{font-size:11px;display:block}.home-section .metrics{gap:7px}.home-section .metric{min-height:0;padding:10px;border-radius:13px}.home-section .metric .number{font-size:21px;margin:3px 0}.home-section .metric .label{font-size:10px}.home-section .metric .small{font-size:11px}.home-food-entry{display:flex;align-items:center;gap:11px;border-bottom:1px solid var(--line);padding:13px 0}.home-food-entry:last-child{border-bottom:0}.food-emoji{display:grid;place-items:center;width:45px;height:45px;border-radius:13px;background:#edf3ed;font-size:23px;flex:none}.food-description{flex:1;min-width:0}.food-description b{display:block;font-size:14px;overflow-wrap:anywhere}.food-description .small{font-size:11px}.food-cal{font-size:14px;font-weight:750;white-space:nowrap}.food-menu{border:1px solid #eadbd8;background:#fff6f4;color:#9a5752;font-size:12px;font-weight:700;border-radius:10px;padding:8px 10px;cursor:pointer}.home-full-log{width:100%;border:0;border-radius:15px;background:#f2f5f1;padding:13px;margin:12px 0 8px;color:var(--ink);text-align:left;display:flex;justify-content:space-between}.home-chat-add{width:100%;margin-top:5px}.home-two{display:grid;grid-template-columns:1fr 1fr;gap:10px}.home-two .card{min-width:0}.home-two .number{font-size:21px;font-weight:750;margin-top:8px}.home-two #movement b{display:block;font-size:13px;margin:8px 0 4px}.home-two #movement .actions{margin-top:8px!important}.home-two #movement .btn{font-size:11px;padding:7px}.key-nutrients{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.nutrient-tile{padding:12px;border-radius:15px;background:#e8f4ec;min-width:0}.nutrient-tile.tracking{background:#fff4e3}.nutrient-tile strong{display:block;font-size:13px}.nutrient-tile .value{font-size:20px;font-weight:750;margin:4px 0}.nutrient-tile .small{font-size:11px}
  .fluid-quick{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px}.fluid-quick button{border:0;background:#e3f0e9;color:#326b59;border-radius:10px;padding:7px 8px;font-size:11px;font-weight:700}.home-two{grid-template-columns:1fr 1fr}.home-two .card{padding:12px}.home-section .chatbox{position:static;padding-bottom:0}.home-section .chatbox textarea{min-height:76px}.home-section #messages{max-height:220px;overflow:auto}.home-section #messages:empty{display:none} #homeStepEditor{margin-top:12px} .navinner{grid-template-columns:repeat(3,1fr)} </style><style>
 .quickfood-tabs{display:flex;gap:7px;flex-wrap:wrap;margin:12px 0}.quickfood-tabs button{border:1px solid var(--line);background:#f4f7f3;border-radius:12px;padding:9px 12px;color:var(--ink);font-weight:650}.quickfood-tabs button.selected{background:var(--green);color:white}.quickfood-results{max-height:300px;overflow:auto}.quickfood-item{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 0;border-bottom:1px solid var(--line)}.quickfood-item .btn{flex-shrink:0}.quickfood-editor{padding:12px;border-radius:13px;background:#f5f7f2;margin-top:12px}.quickfood-editor .two{margin:5px 0}.quickfood-editor label{font-size:12px}.quickfood-help{font-size:12px;color:var(--muted)}
+</style><style id="bloom-reference-design">
+:root{--bg:#f8f6f2;--card:#fff;--ink:#203f39;--muted:#81928b;--green:#326b59;--mint:#e4f1e9;--line:#eae7e1}
+body{background:#f8f6f2;font-size:15px}
+header,.shell{max-width:600px;background:#f8f6f2}
+header{padding:20px 22px 6px}
+.logo{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:34px;font-weight:750;letter-spacing:-1.5px;text-transform:lowercase;color:#326b59}
+.logo span{color:#326b59}
+header .small{font-size:10px;letter-spacing:.8px!important}
+.shell{padding:0 20px 112px}
+h2,h3{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;letter-spacing:-.35px}
+h2{font-size:24px;font-weight:750}
+h3{font-size:19px;font-weight:700}
+.card{border:0;border-radius:22px;padding:20px;margin-bottom:14px;box-shadow:none}
+.btn{border-radius:14px}
+.btn.secondary{background:#f2f3f1}
+.field{border:1px solid #dededb;border-radius:22px;padding:12px 16px}
+.bar{height:8px;background:#e2ece6}
+.fill{background:#5da695}
+.datebar{background:transparent;border:0;padding:4px 0 10px;margin-bottom:4px}
+.week{gap:5px;margin-bottom:20px}
+.day{border-radius:15px;background:#fff;padding:9px 0}
+.home-heading h2{font-size:25px!important}
+#home .home-heading{margin:0 0 14px}
+#home .home-heading h2{margin:0}
+#home .home-steps,#home .bloom-weight-card,#home .home-section:has(#metrics){padding:20px}
+#home .home-steps .row{align-items:center}
+#home .home-steps .number{font-size:28px}
+#home #bloomStepWeekly{font-size:13px;margin-top:12px;line-height:1.7}
+#home .home-steps .bar{margin-top:13px}
+#home .home-two>.card{padding:20px}
+#home .home-two>.card .small{font-size:14px}
+#home .home-two>.card .number{font-size:22px}
+#home .home-two>.card #movement b{font-size:16px}
+#home .fluid-quick{gap:6px;margin-top:16px}
+#home .bloom-buttons button{background:#fff;border:1px solid #dededb;border-radius:30px;padding:7px 11px;font-size:13px;font-weight:500;color:#486058}
+#home .bloom-buttons{display:flex;flex-wrap:wrap;gap:6px}
+#home .bloom-grid{grid-template-columns:minmax(0,1.15fr) minmax(0,1fr) minmax(0,.8fr);font-size:14px;gap:14px 7px}
+#home .bloom-grid .val{font-size:16px;font-weight:500}
+#home .bloom-grid .small{font-size:11px}
+#home .bloom-grid .left{font-size:11px;color:#326b59}
+#home .home-section:has(#metrics) h3{font-size:20px;margin:0 0 8px}
+#home .home-section:has(#metrics) h3:before{content:"🥑 "}
+#home #bloomWeightCard .number{font-size:21px}
+#home #bloomWeightCard .bloom-weight-actions{margin:12px 0 5px}
+#home #bloomWeightCard .bloom-weight-actions input{max-width:170px}
+#workouts>.card:has(#bloomSchedule){padding:20px}
+#workouts>.card:has(#bloomSchedule) h3{font-size:23px;margin:0 0 12px}
+#workouts #bloomSchedule .bloom-day{min-height:74px;padding:14px 15px}
+#workouts #bloomSchedule .bloom-day b{font-size:15px;font-weight:500}
+#workouts #bloomSchedule .bloom-day .small{font-size:13px}
+#workouts #bloomSchedule .bloom-pencil{font-size:21px}
+#log>div:first-child h2{font-size:24px}
+#log>.bloom-food-simple{padding:20px}
+#log .bloom-food-simple h3{font-size:18px}
+#log .bloom-food-simple .small{font-size:13px}
+#log .bloom-food-simple textarea{border-radius:13px;min-height:95px}
+#log .bloom-food-simple .quickfood-item{min-height:58px}
+#log .bloom-food-simple .quickfood-item button{background:#fff;border:1px solid #dededb;border-radius:22px;font-weight:500}
+#log .bloom-food-simple .simple-food-list{max-height:340px}
+#log #bloomTodayFoods .quickfood-item{font-size:14px}
+.nav{background:#f8f6f2;border-top:0;padding:8px 12px max(10px,env(safe-area-inset-bottom))}
+.navinner{width:min(580px,100%);gap:6px}
+.nav button{background:#fff;border-radius:16px;padding:9px 0 7px;font-size:12px}
+.nav button.active{background:#e3f0e9;color:#326b59;font-weight:650}
+.nav button b{font-size:22px}
+@media(min-width:700px){body{background:#f2efeb}.shell,header{border:0}}
 </style></head><body><header><button id="backBtn" class="backbtn hide" onclick="goBack()">← Back</button><div><div class="logo">Bloom<span>.</span></div><div class="small" style="letter-spacing:2px">NOURISH · MOVE · GROW</div></div><button class="btn secondary small" onclick="tab('settings')">⚙ Settings</button></header><main class="shell"><div class="datebar"><span>◀</span><input id="date" type="date" onchange="render()"><span>▣</span></div><div class="week" id="week"></div>
 <section class="panel active" id="home">
 <div class="home-heading"><div><h2>Your day, in bloom.</h2><p class="subtitle">Your daily check-in</p></div><button class="btn secondary small" onclick="focusHomeChat()">✦ Chat</button></div>
@@ -366,6 +432,47 @@ const prev=render;
 render=function(){prev();const target=document.getElementById('bloomTodayFoods');if(!target)return;const items=(day().items||[]).filter(x=>!x.bloomWater&&!(Number(x.fluid)>0&&Number(x.cal||0)===0&&/water/i.test(x.name)));
 target.innerHTML=items.length?items.map(x=>'<div class="quickfood-item"><div><b>'+bloomSafe(x.name)+'</b><div class="small">'+Math.round(Number(x.cal)||0)+' cal · '+(Number(x.protein)||0).toFixed(1)+' g protein</div></div></div>').join(''):'<p class="small">No food logged for this date yet.</p>';
 };
+render();
+})();
+</script><script>
+(function(){
+const nav=document.querySelector('.navinner');
+if(nav){const food=nav.querySelector('[data-tab="log"]'),work=nav.querySelector('[data-tab="workouts"]');if(food&&work)nav.insertBefore(food,work);}
+const foodPanel=document.querySelector('.bloom-food-simple');
+if(foodPanel){
+const previous=foodPanel.querySelector('#bloomSimpleFind');
+const heading=Array.from(foodPanel.querySelectorAll('h3')).find(x=>/recent foods/i.test(x.textContent));
+if(heading)heading.textContent='Previously logged';
+const toolbar=document.createElement('div');
+toolbar.className='bloom-ref-tabs';toolbar.innerHTML='<button class="selected" data-mode="recent" onclick="bloomFoodMode(\'recent\')">Recent</button><button data-mode="saved" onclick="bloomFoodMode(\'saved\')">Saved</button>';
+if(previous)previous.insertAdjacentElement('beforebegin',toolbar);
+const style=document.createElement('style');style.textContent='.bloom-ref-tabs{display:flex;gap:7px;margin:12px 0}.bloom-ref-tabs button{flex:1;border:0;border-radius:25px;background:#f4f5f2;color:#7c8983;padding:9px;font-weight:600}.bloom-ref-tabs button.selected{background:#e3f0e9;color:#326b59}';document.head.appendChild(style);
+let mode='recent';
+const base=bloomSimpleList;
+window.bloomFoodMode=function(m){mode=m;toolbar.querySelectorAll('button').forEach(b=>b.classList.toggle('selected',b.dataset.mode===m));bloomSimpleList()};
+window.bloomSimpleList=function(){
+base();
+if(mode==='saved'){
+const q=document.getElementById('bloomSimpleFind').value.trim().toLowerCase();
+const list=bloomSavedMeals().filter(x=>x.name.toLowerCase().includes(q)).slice().reverse().slice(0,50);
+window.bloomSimpleShown=list;
+document.getElementById('bloomSimpleList').innerHTML=list.length?list.map((x,i)=>'<div class="quickfood-item"><div><b>'+bloomSafe(x.name)+'</b><div class="small">'+Math.round(Number(x.cal)||0)+' cal · '+(Number(x.protein)||0).toFixed(1)+' g protein</div></div><button class="btn secondary small" onclick="bloomSimpleAdd('+i+')">Add +</button></div>').join(''):'<p class="small">No saved foods yet. Foods added from ChatGPT will appear here.</p>';
+}
+};
+}
+const home=document.getElementById('home');
+if(home){
+const stepCard=home.querySelector('.home-steps');
+const existing=stepCard?.querySelector('#homeStepEditor');
+if(existing){
+const input=existing.querySelector('#homeStepInput');
+const row=stepCard.querySelector('.row');
+if(input&&row){input.placeholder='Enter today\'s steps';input.setAttribute('aria-label','Enter today\'s steps');row.insertAdjacentElement('afterend',input);input.style.marginTop='10px';input.style.marginBottom='6px';const saveBtn=document.createElement('button');saveBtn.className='btn secondary small';saveBtn.textContent='Save steps';saveBtn.onclick=saveHomeSteps;input.insertAdjacentElement('afterend',saveBtn);row.querySelector('button')?.remove();existing.style.display='none';const prevRender=render;render=function(){prevRender();if(document.activeElement!==input)input.value=day().steps??'';};}
+}
+const heading=home.querySelector('.home-heading h2');if(heading)heading.textContent='Your day, in bloom.';
+}
+const workoutTitle=document.querySelector('#workouts>.card:has(#bloomSchedule)>h3');if(workoutTitle)workoutTitle.textContent='Your weekly plan';
+const foodHeader=document.querySelector('#log>div:first-child h2');if(foodHeader)foodHeader.textContent='Log your food.';
 render();
 })();
 </script></body></html>
