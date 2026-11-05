@@ -826,13 +826,22 @@ function open(){document.getElementById('bloomExtraDate').value=dayKey();documen
 if(btn)btn.addEventListener('click',function(e){e.preventDefault();e.stopImmediatePropagation();window.bloomOpenExtraWorkout()},true);
 document.getElementById('bloomExtraCancel').addEventListener('click',close);
 modal.addEventListener('click',e=>{if(e.target===modal)close()});
-document.getElementById('bloomExtraSave').addEventListener('click',function(){
-const date=document.getElementById('bloomExtraDate').value,type=document.getElementById('bloomExtraType').value,note=document.getElementById('bloomExtraNotes').value.trim();
-if(!/^\d{4}-\d{2}-\d{2}$/.test(date)){alert('Choose a date.');return}
+document.getElementById('bloomExtraSave').addEventListener('click',function(e){
+e.preventDefault();e.stopPropagation();
+const dateInput=document.getElementById('bloomExtraDate');
+let date=dateInput.value;
+if(!/^\d{4}-\d{2}-\d{2}$/.test(date)){
+  const selected=document.getElementById('date')?.value||'';
+  if(/^\d{4}-\d{2}-\d{2}$/.test(selected))date=selected;
+}
+if(!/^\d{4}-\d{2}-\d{2}$/.test(date)){alert('Please select a date in the date field.');dateInput.focus();return}
+const type=document.getElementById('bloomExtraType').value;
+const note=document.getElementById('bloomExtraNotes').value.trim();
 state.customWorkouts=Array.isArray(state.customWorkouts)?state.customWorkouts:[];
 state.customWorkouts.push({id:String(Date.now())+String(Math.random()).slice(2),date,type,note});
-document.getElementById('date').value=date;
-save();close();render();
+save();close();
+try{render()}catch(err){console.error('Workout saved; display update failed',err)}
+alert('Workout added for '+date+'.');
 });
 })();
 </script><script>window.bloomOpenExtraWorkout=window.bloomOpenExtraWorkout||function(){var m=document.getElementById('bloomExtraWorkoutModal');if(m){document.getElementById('bloomExtraDate').value=document.getElementById('date').value;m.classList.add('open')}};</script></body></html>
