@@ -180,7 +180,7 @@ log.appendChild($b('homeNutrients').closest('.home-section'));
 log.appendChild($b('homeFoodLog'));
 const nutrition=$b('metrics').closest('.home-section');home.appendChild(nutrition);nutrition.querySelector('h3').textContent='Daily nutrition';
 home.querySelector('.home-steps').insertAdjacentHTML('beforeend','<div class="small" id="bloomStepWeekly"></div>');
-const fluid=$b('homeFluidCount').closest('.card');
+const fluid=$b('homeFluidCount').closest('.card');home.insertBefore(fluid,home.querySelector('.home-steps'));
 fluid.querySelector('.fluid-quick').innerHTML='<div class="bloom-buttons">'+[4,6,8,12].map(n=>'<button onclick="bloomWater('+n+')">+'+n+' oz</button>').join('')+'<button onclick="bloomWater(700/29.5735)">+700ml</button></div><div class="actions" style="margin-top:8px"><input class="field" id="bloomWaterAmount" type="number" min="0" placeholder="Custom oz" style="width:110px;margin:0"><button class="btn small" onclick="bloomWaterCustom()">Add</button><button class="btn secondary small" onclick="bloomWaterUndo()">Undo</button></div><div class="small" id="bloomWaterLeft"></div>';
 const workout=$b('movement').closest('.card');workout.insertAdjacentHTML('beforeend','<label class="check"><input type="checkbox" id="bloomDone" onchange="day().checks.main=this.checked;save();render()"> Complete</label>');
 work.insertAdjacentHTML('afterbegin','<div class="card"><h3>Weekly schedule</h3><p class="small">Edit or swap workouts whenever you like.</p><div id="bloomSchedule"></div></div>');
