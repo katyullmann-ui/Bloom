@@ -242,4 +242,56 @@ const path=points.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).jo
 target.innerHTML='<svg class="bloom-weight-chart" viewBox="0 0 320 145" role="img" aria-label="Weight trend over last '+pts.length+' entries"><line x1="35" y1="115" x2="300" y2="115" stroke="#c5d8cc"/><path d="'+path+'" fill="none" stroke="#326b59" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>'+points.map(p=>'<circle cx="'+p[0]+'" cy="'+p[1]+'" r="3.5" fill="#326b59"/>').join('')+'<text x="2" y="32" font-size="11" fill="currentColor">'+Math.round(hi*10)/10+'</text><text x="2" y="115" font-size="11" fill="currentColor">'+Math.round(lo*10)/10+'</text><text x="35" y="135" font-size="10" fill="currentColor">'+pts[0][0].slice(5)+'</text><text x="300" y="135" font-size="10" text-anchor="end" fill="currentColor">'+pts[pts.length-1][0].slice(5)+'</text></svg>';
 };render();
 })();
+</script>
+<style>
+#log>#homeChat,#log>#quickFood{display:none!important}
+.bloom-food-simple{padding:20px}
+.bloom-food-simple textarea{width:100%;min-height:90px;resize:vertical}
+.bloom-food-simple .quickfood-item{padding:11px 0;gap:8px}
+.bloom-food-simple .quickfood-item b{font-size:14px}
+.bloom-food-simple .quickfood-item .small{font-size:12px}
+.bloom-food-simple .quickfood-item button{white-space:nowrap}
+.bloom-food-simple .simple-food-list{max-height:380px;overflow:auto}
+.bloom-food-simple .simple-food-actions{display:flex;gap:8px;flex-wrap:wrap}
+.bloom-food-simple .simple-food-actions button{flex:1}
+</style>
+<script>
+(function(){
+const food=document.getElementById('log');
+const panel=document.createElement('section');panel.className='card bloom-food-simple';
+panel.innerHTML='<h3 style="margin-top:0">🍓 Log food</h3><p class="small">Paste a BLOOM FOOD entry from ChatGPT to add it to your daily totals.</p><textarea id="bloomSimplePaste" class="field" placeholder="Paste your BLOOM FOOD entry here"></textarea><div class="simple-food-actions"><button class="btn small" onclick="bloomSimplePaste()">Add to Home</button></div><p class="small" id="bloomSimpleStatus" role="status"></p><hr class="divider"><h3>Previously logged</h3><p class="small">Tap Add to reuse a food for the selected date.</p><input id="bloomSimpleFind" class="field" placeholder="Find a food you've eaten" oninput="bloomSimpleList()"><div class="simple-food-list" id="bloomSimpleList"></div>';
+food.insertBefore(panel,food.firstElementChild.nextElementSibling);
+window.bloomSimplePaste=function(){
+const box=document.getElementById('bloomSimplePaste'),value=box.value.trim(),status=document.getElementById('bloomSimpleStatus');
+if(!value){status.textContent='Paste a food entry first.';return}
+const parsed=parseBloomBatch(value);
+if(!parsed){status.textContent='Paste a BLOOM FOOD entry from ChatGPT, including its date and nutrition.';return}
+const invalid=parsed.find(x=>!x||x.error);
+if(invalid){status.textContent='Nothing saved. '+(invalid?.error||'Invalid food entry.');return}
+const target=document.getElementById('chatInput');target.value=value;
+chatSend();
+const response=state.messages[state.messages.length-1]?.text||'';
+if(/Nothing saved|couldn.t interpret/i.test(response)){status.textContent=response;return}
+box.value='';status.textContent=response||'Food added.';
+bloomSimpleList();
+tab('home');
+};
+window.bloomSimpleList=function(){
+const q=document.getElementById('bloomSimpleFind').value.trim().toLowerCase();
+const foods=[...bloomSavedMeals().slice().reverse(),...bloomFoodsHistory()];
+const seen=new Set(),unique=foods.filter(x=>{let k=String(x.name||'').toLowerCase();if(!k||seen.has(k))return false;seen.add(k);return true}).filter(x=>x.name.toLowerCase().includes(q)).slice(0,50);
+window.bloomSimpleShown=unique;
+document.getElementById('bloomSimpleList').innerHTML=unique.length?unique.map((x,i)=>'<div class="quickfood-item"><div><b>'+bloomSafe(x.name)+'</b><div class="small">'+Math.round(Number(x.cal)||0)+' cal · '+(Math.round((Number(x.protein)||0)*10)/10)+' g protein</div></div><button class="btn secondary small" onclick="bloomSimpleAdd('+i+')">Add +</button></div>').join(''):'<p class="small">No previous foods match.</p>';
+};
+window.bloomSimpleAdd=function(i){
+const x=window.bloomSimpleShown?.[i];if(!x)return;
+const amount=Number(x.servingAmount)||1;
+const item={name:x.name,cal:Number(x.cal)||0,protein:Number(x.protein)||0,carbs:Number(x.carbs)||0,fat:Number(x.fat)||0,fiber:Number(x.fiber)||0,fluid:Number(x.fluid)||0,micro:{...(x.micro||{})}};
+if(x.source==='Imported from ChatGPT'&&amount!==1){for(let k of ['cal','protein','carbs','fat','fiber','fluid'])item[k]*=amount}
+day().items.push(item);save();render();tab('home');
+};
+const oldRender=render;
+render=function(){oldRender();bloomSimpleList()};
+render();
+})();
 </script></body></html>
