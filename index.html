@@ -208,4 +208,38 @@ $b('metrics').className='bloom-grid';$b('metrics').innerHTML='<div class="small"
 $b('bloomSchedule').innerHTML=days.map((n,i)=>'<div class="bloom-day"><div class="row"><b>'+n+'</b><span>'+esc(state.bloomSchedule[i])+'</span></div><select class="field" onchange="bloomChangeDay('+i+',this.value)">'+['Lagree','Walking','Recovery walk','Strength training','Rest','Other'].map(t=>'<option '+(state.bloomSchedule[i]===t?'selected':'')+'>'+t+'</option>').join('')+'</select><label class="small">Swap with <select onchange="bloomSwapDay('+i+',this.value)"><option value="">Select day</option>'+days.map((x,j)=>i===j?'':'<option value="'+j+'">'+x+'</option>').join('')+'</select></label></div>').join('');
 };render();
 })();
+</script>
+<style>
+.bloom-weight-card{margin-top:14px}
+.bloom-weight-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:12px 0}
+.bloom-weight-actions input{max-width:150px;margin:0}
+.bloom-weight-chart{width:100%;height:auto;display:block}
+.bloom-weight-note{font-size:12px;color:var(--muted,#6c746e)}
+</style>
+<script>
+(function(){
+const home=document.getElementById('home');
+const weightCard=document.createElement('div');
+weightCard.className='card bloom-weight-card';
+weightCard.innerHTML='<div class="row"><div><div class="small">⚖ Weight</div><div class="number" id="bloomWeightLatest">No weight logged</div><div class="bloom-weight-note" id="bloomWeightDate"></div></div></div><div class="bloom-weight-actions"><input id="bloomWeightInput" class="field" type="number" min="1" max="1400" step="0.1" inputmode="decimal" placeholder="Weight (lb)" aria-label="Weight in pounds"><button class="btn small" onclick="bloomSaveWeight()">Save weight</button><button class="btn secondary small" onclick="bloomDeleteWeight()">Delete date</button></div><div class="bloom-weight-note">Logs weight for the date selected above. Select a past date to edit it.</div><div id="bloomWeightGraph" style="margin-top:12px"></div>';
+home.querySelector('.home-two').insertAdjacentElement('afterend',weightCard);
+state.weights=state.weights&&typeof state.weights==='object'&&!Array.isArray(state.weights)?state.weights:{};
+window.bloomSaveWeight=function(){let field=document.getElementById('bloomWeightInput'),n=Number(field.value);if(!field.value||!Number.isFinite(n)||n<=0||n>1400){alert('Enter a valid weight in pounds.');return}state.weights[dayKey()]=Math.round(n*10)/10;save();render()};
+window.bloomDeleteWeight=function(){let k=dayKey();if(state.weights[k]===undefined){alert('No weight saved for this date.');return}if(confirm('Delete weight entry for '+k+'?')){delete state.weights[k];save();render()}};
+const oldRender=render;
+render=function(){oldRender();state.weights=state.weights&&typeof state.weights==='object'?state.weights:{};
+const entries=Object.entries(state.weights).filter(([k,v])=>/^\d{4}-\d{2}-\d{2}$/.test(k)&&Number.isFinite(Number(v))&&Number(v)>0).sort((a,b)=>a[0].localeCompare(b[0]));
+const chosen=state.weights[dayKey()];
+document.getElementById('bloomWeightInput').value=chosen==null?'':chosen;
+const latest=entries.length?entries[entries.length-1]:null;
+document.getElementById('bloomWeightLatest').textContent=latest?Number(latest[1]).toFixed(1)+' lb':'No weight logged';
+document.getElementById('bloomWeightDate').textContent=latest?'Most recent: '+latest[0]:'Your entries will appear here';
+const target=document.getElementById('bloomWeightGraph');
+if(entries.length<2){target.innerHTML='<div class="bloom-weight-note">Log weight on at least two dates to see your trend.</div>';return}
+const pts=entries.slice(-30),vals=pts.map(x=>Number(x[1])),lo=Math.min(...vals)-1,hi=Math.max(...vals)+1;
+const points=vals.map((v,i)=>[35+(i/(vals.length-1))*265,115-((v-lo)/(hi-lo))*85]);
+const path=points.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' ');
+target.innerHTML='<svg class="bloom-weight-chart" viewBox="0 0 320 145" role="img" aria-label="Weight trend over last '+pts.length+' entries"><line x1="35" y1="115" x2="300" y2="115" stroke="#c5d8cc"/><path d="'+path+'" fill="none" stroke="#326b59" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>'+points.map(p=>'<circle cx="'+p[0]+'" cy="'+p[1]+'" r="3.5" fill="#326b59"/>').join('')+'<text x="2" y="32" font-size="11" fill="currentColor">'+Math.round(hi*10)/10+'</text><text x="2" y="115" font-size="11" fill="currentColor">'+Math.round(lo*10)/10+'</text><text x="35" y="135" font-size="10" fill="currentColor">'+pts[0][0].slice(5)+'</text><text x="300" y="135" font-size="10" text-anchor="end" fill="currentColor">'+pts[pts.length-1][0].slice(5)+'</text></svg>';
+};render();
+})();
 </script></body></html>
