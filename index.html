@@ -798,4 +798,40 @@ heading?.insertAdjacentElement('afterend',note);
 const list=document.getElementById('bloomWorkExtraList')?.closest('.card');
 if(list)add.insertAdjacentElement('afterend',list);
 })();
+</script><style>
+#bloomExtraWorkoutModal{position:fixed;inset:0;z-index:100001;background:#17352d80;display:none;align-items:center;justify-content:center;padding:18px}
+#bloomExtraWorkoutModal.open{display:flex}
+#bloomExtraWorkoutModal .bloom-extra-dialog{background:white;border-radius:24px;padding:24px;width:min(440px,100%);max-height:90dvh;overflow:auto}
+#bloomExtraWorkoutModal label{display:block;margin:14px 0 5px;font-weight:600}
+#bloomExtraWorkoutModal .field{width:100%;margin:0}
+#bloomExtraWorkoutModal .actions{display:flex;justify-content:flex-end;gap:10px;margin-top:20px}
+</style>
+<div id="bloomExtraWorkoutModal" role="dialog" aria-modal="true" aria-labelledby="bloomExtraTitle">
+<div class="bloom-extra-dialog">
+<h3 id="bloomExtraTitle">Add another workout</h3>
+<p class="small">Your scheduled workout will not change.</p>
+<label for="bloomExtraDate">Date</label><input id="bloomExtraDate" class="field" type="date">
+<label for="bloomExtraType">Workout</label><select id="bloomExtraType" class="field"><option value="walking">Walking</option><option value="lagree">Lagree</option><option value="upper">Upper body</option><option value="lower">Lower body / glutes</option><option value="mobility">Mobility</option><option value="recovery">Recovery walk</option><option value="other">Other workout</option></select>
+<label for="bloomExtraNotes">Notes (optional)</label><input id="bloomExtraNotes" class="field" placeholder="Duration or details">
+<div class="actions"><button type="button" class="btn secondary" id="bloomExtraCancel">Cancel</button><button type="button" class="btn" id="bloomExtraSave">Add workout</button></div>
+</div></div>
+<script>
+(function(){
+const modal=document.getElementById('bloomExtraWorkoutModal');
+const btn=document.getElementById('bloomQuickAddWorkout');
+if(!modal||!btn)return;
+function close(){modal.classList.remove('open')}
+function open(){document.getElementById('bloomExtraDate').value=dayKey();document.getElementById('bloomExtraNotes').value='';modal.classList.add('open');document.getElementById('bloomExtraType').focus()}
+btn.addEventListener('click',function(e){e.preventDefault();e.stopImmediatePropagation();open()},true);
+document.getElementById('bloomExtraCancel').addEventListener('click',close);
+modal.addEventListener('click',e=>{if(e.target===modal)close()});
+document.getElementById('bloomExtraSave').addEventListener('click',function(){
+const date=document.getElementById('bloomExtraDate').value,type=document.getElementById('bloomExtraType').value,note=document.getElementById('bloomExtraNotes').value.trim();
+if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(date)){alert('Choose a date.');return}
+state.customWorkouts=Array.isArray(state.customWorkouts)?state.customWorkouts:[];
+state.customWorkouts.push({id:String(Date.now())+String(Math.random()).slice(2),date,type,note});
+document.getElementById('date').value=date;
+save();close();render();
+});
+})();
 </script></body></html>
