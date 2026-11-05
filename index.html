@@ -475,4 +475,93 @@ const workoutTitle=document.querySelector('#workouts>.card:has(#bloomSchedule)>h
 const foodHeader=document.querySelector('#log>div:first-child h2');if(foodHeader)foodHeader.textContent='Log your food.';
 render();
 })();
+</script><style id="bloom-screenshot-match">
+:root{--bg:#f8f6f2;--card:#fff;--ink:#203f39;--muted:#80928b;--line:#e8e6e1}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f8f6f2}
+header,.shell{max-width:600px}
+header{padding:18px 20px 8px}
+.logo{font-family:inherit;font-weight:750;font-size:34px;letter-spacing:-1.5px;color:#326b59}
+.shell{padding:0 20px 110px}
+.card{background:#fff;border:0;border-radius:24px;padding:20px;margin-bottom:18px}
+#home .home-heading{margin:14px 0}
+#home .home-heading h2{font-size:25px}
+#home .home-steps{padding:20px}
+#home .home-steps .row{display:none}
+#home .home-steps .bar{margin:12px 0}
+#home #homeStepInput{border-radius:25px;margin:8px 0}
+#home #bloomStepWeekly{margin-top:20px;padding-top:18px;border-top:1px solid #ebe9e5;font-size:15px}
+#home #bloomStepWeekly .bar{margin:9px 0 0}
+#home #bloomStepWeekly .number{font-size:23px}
+#home .home-two{display:contents}
+#home .home-two>.card{padding:20px}
+#home .home-two>.card .small{font-size:14px}
+#home .home-two>.card #movement b{font-size:15px}
+#home .home-two>.card #movement .small{font-size:13px}
+#home .bloom-weight-card{padding:20px}
+#home .home-section:has(#metrics){padding:20px}
+#home .home-section:has(#metrics) h3{font-size:20px}
+#home .bloom-grid{grid-template-columns:1.05fr 1fr .8fr}
+#home .bloom-grid .val{font-size:16px}
+#home .bloom-grid .small{font-size:11px}
+#home .bloom-grid .left{font-size:11px}
+#home .bloom-buttons{display:flex;gap:5px;flex-wrap:wrap}
+#home .bloom-buttons button{border:1px solid #d9ddda;background:#fff;color:#486058;border-radius:30px;padding:7px 12px;font-weight:500}
+#home #bloomWaterLeft{margin-top:9px;color:#326b59}
+#home .check{border:0;padding:8px 0}
+#home .check input{accent-color:#326b59}
+#workouts>.card:has(#bloomSchedule){padding:20px}
+#workouts #bloomSchedule .bloom-day{min-height:76px;padding:14px 15px}
+#workouts #bloomSchedule .bloom-day-today{background:#e6f2eb}
+#log>.bloom-food-simple{display:none!important}
+#log>.bloom-ref-food{display:block!important}
+#log .bloom-ref-food{padding:18px;margin-bottom:14px}
+#log .bloom-ref-food h3{font-size:17px;font-weight:550;margin:0 0 12px}
+#log .bloom-ref-food textarea{border-radius:12px;min-height:104px}
+#log .bloom-ref-food .quickfood-item{min-height:60px}
+#log .bloom-ref-food .quickfood-item button{border:1px solid #d8dcd8;border-radius:30px;background:#fff;color:#42524b;font-weight:500}
+#log .bloom-ref-tabs{display:flex;gap:5px;background:#fff;margin:0 0 15px}
+#log .bloom-ref-tabs button{flex:1;border:0;border-radius:30px;background:#fff;color:#87928e;padding:10px 3px}
+#log .bloom-ref-tabs button.selected{background:#f2f3f2;color:#233b35}
+#log .bloom-ref-results{max-height:300px;overflow:auto}
+#log .bloom-ref-results .quickfood-item b{font-weight:500}
+#log .bloom-ref-results .quickfood-item .small{font-size:12px}
+#log .bloom-ref-food .field{border-radius:24px}
+#log .bloom-ref-food .small{font-size:12px}
+.nav{background:#f8f6f2;border-top:0;padding:7px 12px max(10px,env(safe-area-inset-bottom))}
+.navinner{width:min(580px,100%);gap:6px}
+.nav button{background:#fff;border-radius:16px;padding:10px 0;font-size:12px}
+.nav button.active{background:#e2f0e8;color:#326b59}
+@media(min-width:700px){body{background:#f1eeea}.shell,header{background:#f8f6f2}}
+</style>
+<script>
+(function(){
+const home=document.getElementById('home');
+const step=home.querySelector('.home-steps');
+if(step){
+const oldInput=document.getElementById('homeStepInput');
+const newEntry=document.createElement('div');
+newEntry.innerHTML='<h3 style="margin:0 0 13px">👟 Your steps</h3><label for="bloomRefSteps" class="small">Enter today\'s steps</label><input id="bloomRefSteps" class="field" type="number" min="0" inputmode="numeric" placeholder="Enter steps"><div class="small" id="bloomRefStepLabel"></div><div class="number" id="bloomRefStepValue" style="font-size:26px;font-weight:750;margin:6px 0"></div><div class="small" id="bloomRefStepStatus"></div>';
+step.insertBefore(newEntry,step.firstChild);
+const input=document.getElementById('bloomRefSteps');
+input.addEventListener('change',()=>{const n=Number(input.value);if(input.value.trim()!==''&&Number.isFinite(n)&&n>=0){day().steps=Math.round(n);save();render()}});
+input.addEventListener('keydown',e=>{if(e.key==='Enter'){input.blur()}});
+const old=render;
+render=function(){old();if(document.activeElement!==input)input.value=day().steps??'';const goal=Math.ceil((state.goals.steps||60000)/7);const n=Number(day().steps||0);document.getElementById('bloomRefStepLabel').textContent='Today · Goal '+goal.toLocaleString();document.getElementById('bloomRefStepValue').textContent=n.toLocaleString()+' steps';document.getElementById('bloomRefStepStatus').textContent=n>=goal?'✓ Daily goal reached! '+(n-goal).toLocaleString()+' extra steps':(goal-n).toLocaleString()+' steps left today';const weekly=document.getElementById('bloomStepWeekly');if(weekly){const d=new Date(dayKey()+'T12:00:00'),weekday=(d.getDay()+6)%7;d.setDate(d.getDate()-weekday);let total=0;for(let i=0;i<7;i++){let x=new Date(d);x.setDate(d.getDate()+i);let k=x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0');total+=Number(state.days[k]?.steps||0)}const target=state.goals.steps||60000;weekly.innerHTML='<div class="small">This week · Goal '+target.toLocaleString()+'</div><div class="number">'+total.toLocaleString()+' <span class="small">/ '+target.toLocaleString()+'</span></div><div class="bar"><div class="fill" style="width:'+Math.min(100,total/target*100)+'%"></div></div><div class="small" style="margin-top:7px;color:#326b59">'+Math.max(0,target-total).toLocaleString()+' steps left this week</div>'}};
+}
+const movement=document.getElementById('movement');if(movement){const card=movement.closest('.card');const heading=card.querySelector('.small');if(heading)heading.textContent="Today's workout";}
+const log=document.getElementById('log');
+const oldPanel=log.querySelector('.bloom-food-simple');
+if(oldPanel){
+const search=document.createElement('section');search.className='card bloom-ref-food';search.innerHTML='<div class="bloom-ref-tabs"><button class="selected" onclick="bloomRefMode(\'recent\')">Recent</button><button onclick="bloomRefMode(\'saved\')">Saved</button></div><input class="field" id="bloomRefSearch" placeholder="Find food or meal you have logged" oninput="bloomRefList()"><div class="bloom-ref-results" id="bloomRefResults"></div>';
+oldPanel.insertAdjacentElement('beforebegin',search);
+const paste=document.createElement('section');paste.className='card bloom-ref-food';paste.innerHTML='<h3>Paste from ChatGPT</h3><textarea id="bloomRefPaste" class="field" placeholder="Paste your BLOOM FOOD entry here..."></textarea><button class="btn small" onclick="bloomRefPasteFood()">Add food</button><div class="small" id="bloomRefFeedback" role="status" style="margin-top:10px">Food will save to the selected date and update Home.</div>';search.insertAdjacentElement('afterend',paste);
+let mode='recent';
+window.bloomRefMode=function(m){mode=m;search.querySelectorAll('.bloom-ref-tabs button').forEach((b,i)=>b.classList.toggle('selected',(i===0)===(m==='recent')));bloomRefList()};
+window.bloomRefList=function(){const q=document.getElementById('bloomRefSearch').value.toLowerCase().trim();const items=mode==='saved'?bloomSavedMeals().slice().reverse():bloomFoodsHistory();const seen=new Set();const found=items.filter(x=>{const name=String(x.name||'').toLowerCase();if(!name||seen.has(name)||!name.includes(q))return false;seen.add(name);return true}).slice(0,40);window.bloomRefShown=found;document.getElementById('bloomRefResults').innerHTML=found.length?found.map((x,i)=>'<div class="quickfood-item"><div><b>'+bloomSafe(x.name)+'</b><div class="small">'+Math.round(Number(x.cal)||0)+' cal · '+(Number(x.protein)||0).toFixed(1)+'g protein</div></div><button onclick="bloomRefAdd('+i+')">Add +</button></div>').join(''):'<p class="small">No matching foods yet.</p>'};
+window.bloomRefAdd=function(i){const x=window.bloomRefShown?.[i];if(!x)return;const item={name:x.name,cal:Number(x.cal)||0,protein:Number(x.protein)||0,carbs:Number(x.carbs)||0,fat:Number(x.fat)||0,fiber:Number(x.fiber)||0,fluid:Number(x.fluid)||0,micro:{...(x.micro||{})}};day().items.push(item);save();render();tab('home')};
+window.bloomRefPasteFood=function(){const input=document.getElementById('bloomRefPaste'),v=input.value.trim();if(!v)return;const old=document.getElementById('bloomSimplePaste');old.value=v;bloomSimplePaste();if(!old.value){input.value='';document.getElementById('bloomRefFeedback').textContent='Food added to Home.'}else{document.getElementById('bloomRefFeedback').textContent=document.getElementById('bloomSimpleStatus').textContent}};
+const prior=render;render=function(){prior();bloomRefList()};bloomRefList();
+}
+render();
+})();
 </script></body></html>
