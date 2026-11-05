@@ -667,4 +667,32 @@ if(caption)caption.textContent='Adjusted daily goal: '+adjustedGoal.toLocaleStri
 };
 render();
 })();
+</script><script>
+(function(){
+window.bloomRefPasteFood=function(){
+const input=document.getElementById('bloomRefPaste');
+const feedback=document.getElementById('bloomRefFeedback');
+if(!input||!feedback)return;
+const value=input.value.trim();
+if(!value){feedback.textContent='Paste a BLOOM FOOD entry first.';return}
+try{
+const blocks=value.split(/(?=^BLOOM FOOD(?: V1)?\s*$)/gmi).map(x=>x.trim()).filter(Boolean);
+let added=0,duplicates=0,errors=[];
+for(const block of blocks){
+const parsed=parseBloomFood(block.replace(/^.*?(?=BLOOM FOOD(?: V1)?\s*$)/ims,''));
+if(!parsed){errors.push('Could not recognize the BLOOM FOOD format.');continue}
+if(parsed.error){errors.push(parsed.error);continue}
+const date=parsed.date,item=parsed.item;
+const d=state.days[date]||(state.days[date]={steps:null,items:[],checks:{},supp:{}});
+if(!Array.isArray(d.items))d.items=[];
+if(d.items.some(x=>x.name===item.name&&Number(x.cal)===Number(item.cal)&&Number(x.protein)===Number(item.protein))){duplicates++;continue}
+d.items.push(item);added++;
+if(typeof bloomRememberImported==='function')bloomRememberImported(item);
+document.getElementById('date').value=date;
+}
+if(added){save();input.value='';render();feedback.textContent='✓ Added '+added+' food'+(added===1?'':'s')+' to '+dayKey()+'. Home nutrition updated.'+(duplicates?' '+duplicates+' duplicate skipped.':'');}
+else feedback.textContent=errors.length?errors.join(' '):duplicates?'This food is already saved. No duplicate added.':'Nothing was added.';
+}catch(err){feedback.textContent='Could not add food: '+(err?.message||'Please check the entry.')}
+};
+})();
 </script></body></html>
