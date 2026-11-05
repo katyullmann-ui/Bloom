@@ -596,4 +596,30 @@ const prev=render;
 render=function(){prev();const target=document.getElementById('bloomFoodTodayItems');if(!target)return;const items=(day().items||[]).filter(x=>!x.bloomWater&&!(Number(x.fluid)>0&&Number(x.cal||0)===0&&/water/i.test(x.name)));target.innerHTML=items.length?items.map(x=>'<div class="quickfood-item"><div><b>'+bloomSafe(x.name)+'</b><div class="small">'+Math.round(Number(x.cal)||0)+' cal · '+(Number(x.protein)||0).toFixed(1)+'g protein</div></div></div>').join(''):'<p class="small">No foods added for this date yet.</p>';};
 render();
 })();
+</script><style>
+#bloomWorkoutEditor{position:fixed;inset:0;z-index:99999;background:rgba(20,43,36,.42);display:none;align-items:center;justify-content:center;padding:20px}
+#bloomWorkoutEditor.open{display:flex}
+#bloomWorkoutEditor .editor-card{background:white;border-radius:22px;padding:24px;width:min(420px,100%);box-shadow:0 18px 50px #152d2630}
+#bloomWorkoutEditor select{width:100%;margin:14px 0}
+#bloomWorkoutEditor .editor-actions{display:flex;gap:10px;justify-content:flex-end}
+#workouts .bloom-pencil{cursor:pointer;touch-action:manipulation;min-width:48px;min-height:48px;border:0!important;outline:0!important;background:transparent!important}
+</style>
+<div id="bloomWorkoutEditor" role="dialog" aria-modal="true" aria-labelledby="bloomWorkoutEditorTitle">
+<div class="editor-card">
+<h3 id="bloomWorkoutEditorTitle">Edit workout</h3>
+<label for="bloomWorkoutChoice">Workout</label>
+<select id="bloomWorkoutChoice" class="field"><option>Lagree</option><option>Walking</option><option>Recovery walk</option><option>Strength training</option><option>Rest</option><option>Other</option></select>
+<div class="editor-actions"><button type="button" class="btn secondary" id="bloomWorkoutCancel">Cancel</button><button type="button" class="btn" id="bloomWorkoutSave">Save</button></div>
+</div></div>
+<script>
+(function(){
+const modal=document.getElementById('bloomWorkoutEditor'),select=document.getElementById('bloomWorkoutChoice'),title=document.getElementById('bloomWorkoutEditorTitle');let index=-1;
+function close(){modal.classList.remove('open');index=-1}
+window.bloomEditSchedule=function(i){i=Number(i);if(!Number.isInteger(i)||i<0||i>6)return;index=i;title.textContent='Edit '+['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'][i];let value=state.bloomSchedule[i]||'Walking';if(!Array.from(select.options).some(x=>x.value===value)){const opt=document.createElement('option');opt.value=value;opt.textContent=value;select.appendChild(opt)}select.value=value;modal.classList.add('open');select.focus()};
+document.getElementById('bloomWorkoutCancel').addEventListener('click',close);
+document.getElementById('bloomWorkoutSave').addEventListener('click',function(){if(index<0)return;state.bloomSchedule[index]=select.value;save();close();render()});
+modal.addEventListener('click',e=>{if(e.target===modal)close()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')close()});
+document.addEventListener('click',e=>{const button=e.target.closest?.('#workouts .bloom-pencil');if(!button)return;e.preventDefault();e.stopPropagation();const row=button.closest('.bloom-day');const rows=Array.from(document.querySelectorAll('#bloomSchedule .bloom-day'));const i=rows.indexOf(row);if(i>=0)window.bloomEditSchedule(i)},true);
+})();
 </script></body></html>
