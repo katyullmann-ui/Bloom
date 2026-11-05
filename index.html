@@ -206,7 +206,7 @@ $b('movement').innerHTML='<b>'+esc(state.bloomSchedule[idx])+'</b><div class="sm
 $b('bloomDone').checked=!!day().checks.main;
 const s=sum(),g=state.goals,logged=keys.filter(k=>state.days[k]?.items?.length),rows=[['Calories','cal','',g.calMin],['Protein','protein','g',g.proteinMin],['Carbs','carbs','g',g.carbs||181],['Fat','fat','g',g.fat||55],['Fiber','fiber','g',g.fiber],['Fluids','fluid',' oz',g.fluid]];
 $b('metrics').className='bloom-grid';$b('metrics').innerHTML='<div class="small">Nutrient</div><div class="small">Today</div><div class="small" style="text-align:right">Week avg.</div>'+rows.map(([name,k,unit,goal])=>{let avg=logged.length?logged.reduce((a,key)=>a+state.days[key].items.reduce((n,x)=>n+Number(x[k]||0),0),0)/logged.length:null;return '<div><b>'+name+'</b><div class="small">Goal '+goal+unit+'</div></div><div><div class="val">'+fmt(s[k]||0)+unit+'</div><div class="left">'+Math.max(0,fmt(goal-(s[k]||0)))+unit+' left</div></div><div class="val" style="text-align:right">'+(avg==null?'—':fmt(avg)+unit)+'</div>'}).join('');
-$b('bloomSchedule').innerHTML=days.map((n,i)=>'<div class="bloom-day"><div class="row"><b>'+n+'</b><span>'+esc(state.bloomSchedule[i])+'</span></div><select class="field" onchange="bloomChangeDay('+i+',this.value)">'+['Lagree','Walking','Recovery walk','Strength training','Rest','Other'].map(t=>'<option '+(state.bloomSchedule[i]===t?'selected':'')+'>'+t+'</option>').join('')+'</select><label class="small">Swap with <select onchange="bloomSwapDay('+i+',this.value)"><option value="">Select day</option>'+days.map((x,j)=>i===j?'':'<option value="'+j+'">'+x+'</option>').join('')+'</select></label></div>').join('');
+$b('bloomSchedule').innerHTML=days.map((n,i)=>'<div class="bloom-day '+(i===idx?'bloom-day-today':'')+'"><div><b>'+['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'][i]+'</b><div class="small">'+esc(state.bloomSchedule[i])+'</div></div><button class="bloom-pencil" aria-label="Edit '+n+'" onclick="bloomEditSchedule('+i+')">✎</button></div>').join('');
 };render();
 })();
 </script>
@@ -310,5 +310,62 @@ const supplements=document.getElementById('homeSupplements');
 if(supplements)supplements.style.display='none';
 const quick=Array.from(log.children).find(el=>el.classList.contains('card')&&el.querySelector('h3')?.textContent.trim()==='Quick add fluids');
 if(quick)quick.style.display='none';
+})();
+</script>
+<style>
+:root{--bloom-soft:#f8f6f2}
+body{background:var(--bloom-soft)}
+.shell{max-width:720px}
+#home .home-heading h2{font-size:clamp(28px,6vw,38px)}
+#home .home-heading .subtitle{display:none}
+#home .home-heading button{display:none}
+#home .home-two{display:contents}
+#home .home-steps,#home .home-two>.card,#home>.card,#home>.home-section{margin-bottom:12px}
+#home #bloomWeightCard{margin-top:0}
+#home .home-steps{order:2}
+#home .bloom-weight-card{order:4}
+#home .bloom-grid{gap:8px 12px}
+#home .home-section:has(#metrics){order:5}
+#home .home-heading{order:0}
+#home .home-steps .number{font-size:28px}
+#log>h2,#log>.subtitle{display:none}
+#log>.card:has(#entries),#log>h3{display:none}
+#log>.bloom-food-simple{margin-top:8px}
+#log .bloom-food-simple textarea{min-height:105px}
+#log .bloom-food-simple hr{margin:18px 0}
+#log .simple-food-list{max-height:320px}
+#workouts>h2,#workouts>.subtitle{display:none}
+#workouts>.card:not(:has(#bloomSchedule)){display:none!important}
+#workouts>.card:has(#bloomSchedule){padding:18px 20px}
+#workouts>.card:has(#bloomSchedule)>p{display:none}
+#workouts #bloomSchedule .bloom-day{display:flex;align-items:center;justify-content:space-between;padding:13px 12px;border-bottom:0;border-radius:14px;min-height:70px}
+#workouts #bloomSchedule .bloom-day-today{background:#e7f2eb}
+#workouts #bloomSchedule .bloom-day .small{margin-top:5px}
+.bloom-pencil{background:transparent;border:0;color:#326b59;font-size:23px;cursor:pointer;padding:8px 12px}
+#bloomTodayFoods{margin-top:14px}
+#bloomTodayFoods .quickfood-item{padding:9px 0}
+.navinner{display:flex;justify-content:space-around}
+.navinner button{flex:1}
+</style>
+<script>
+(function(){
+const food=document.getElementById('log'),panel=document.querySelector('.bloom-food-simple');
+const title=document.createElement('div');title.innerHTML='<h2 style="margin:6px 0 4px">Log your food.</h2><p class="small" style="margin:0 0 14px">Paste from ChatGPT or add a food you have logged before.</p>';food.insertBefore(title,panel);
+panel.querySelector('h3').textContent='Paste from ChatGPT';
+const recent=panel.querySelector('h3:nth-of-type(2)');if(recent)recent.textContent='Recent foods';
+const today=document.createElement('section');today.className='card';today.innerHTML='<h3 style="margin-top:0">Today\'s food</h3><div id="bloomTodayFoods"></div>';panel.insertAdjacentElement('afterend',today);
+window.bloomEditSchedule=function(i){
+const choices=['Lagree','Walking','Recovery walk','Strength training','Rest','Other'];
+const current=state.bloomSchedule[i];const answer=prompt('Workout for '+['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'][i]+' (Lagree, Walking, Recovery walk, Strength training, Rest, Other):',current);
+if(answer===null)return;
+const chosen=choices.find(x=>x.toLowerCase()===answer.trim().toLowerCase());
+if(!chosen){alert('Choose: '+choices.join(', '));return}
+bloomChangeDay(i,chosen);
+};
+const prev=render;
+render=function(){prev();const target=document.getElementById('bloomTodayFoods');if(!target)return;const items=(day().items||[]).filter(x=>!x.bloomWater&&!(Number(x.fluid)>0&&Number(x.cal||0)===0&&/water/i.test(x.name)));
+target.innerHTML=items.length?items.map(x=>'<div class="quickfood-item"><div><b>'+bloomSafe(x.name)+'</b><div class="small">'+Math.round(Number(x.cal)||0)+' cal · '+(Number(x.protein)||0).toFixed(1)+' g protein</div></div></div>').join(''):'<p class="small">No food logged for this date yet.</p>';
+};
+render();
 })();
 </script></body></html>
