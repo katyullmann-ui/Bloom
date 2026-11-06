@@ -844,4 +844,41 @@ try{render()}catch(err){console.error('Workout saved; display update failed',err
 alert('Workout added for '+date+'.');
 });
 })();
-</script><script>window.bloomOpenExtraWorkout=window.bloomOpenExtraWorkout||function(){var m=document.getElementById('bloomExtraWorkoutModal');if(m){document.getElementById('bloomExtraDate').value=document.getElementById('date').value;m.classList.add('open')}};</script></body></html>
+</script><script>window.bloomOpenExtraWorkout=window.bloomOpenExtraWorkout||function(){var m=document.getElementById('bloomExtraWorkoutModal');if(m){document.getElementById('bloomExtraDate').value=document.getElementById('date').value;m.classList.add('open')}};</script>
+<style id="bloom-weekly-multiple-workouts-style">
+#bloomSchedule .bloom-extra-scheduled{margin-top:7px;padding-top:7px;border-top:1px solid #e8eee9;color:#326b59;font-weight:600}
+#bloomSchedule .bloom-extra-scheduled .bloom-extra-note{display:block;font-size:12px;font-weight:400;color:#80928b;margin-top:2px}
+</style>
+<script id="bloom-weekly-multiple-workouts">
+(function(){
+  const previousRender=render;
+  function showAdditionalWorkoutsInWeek(){
+    const schedule=document.getElementById('bloomSchedule');
+    if(!schedule)return;
+    const selected=new Date(dayKey()+'T12:00:00');
+    if(Number.isNaN(selected.getTime()))return;
+    const monday=new Date(selected);
+    monday.setDate(selected.getDate()-(selected.getDay()+6)%7);
+    const rows=schedule.querySelectorAll('.bloom-day');
+    rows.forEach((row,index)=>{
+      const date=new Date(monday);
+      date.setDate(monday.getDate()+index);
+      const key=date.getFullYear()+'-'+String(date.getMonth()+1).padStart(2,'0')+'-'+String(date.getDate()).padStart(2,'0');
+      const extra=(Array.isArray(state.customWorkouts)?state.customWorkouts:[]).filter(w=>w.date===key);
+      const content=row.querySelector('div');
+      if(!content)return;
+      extra.forEach(w=>{
+        const label=({lagree:'Lagree',upper:'Upper body',lower:'Lower body / glutes',mobility:'Mobility',walking:'Walking',recovery:'Recovery walk',other:'Other workout'})[w.type]||w.type||'Workout';
+        const line=document.createElement('div');
+        line.className='small bloom-extra-scheduled';
+        line.textContent='+ '+label;
+        if(w.note){const note=document.createElement('span');note.className='bloom-extra-note';note.textContent=w.note;line.appendChild(note)}
+        content.appendChild(line);
+      });
+    });
+  }
+  render=function(){previousRender();showAdditionalWorkoutsInWeek()};
+  showAdditionalWorkoutsInWeek();
+})();
+</script>
+</body></html>
