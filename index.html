@@ -895,3 +895,45 @@ alert('Workout added for '+date+'.');
 })();
 </script>
 </body></html>
+
+<style id="bloom-extra-completion-style">
+#bloomSchedule .bloom-extra-complete{display:inline-flex;align-items:center;gap:6px;margin-left:9px;font-size:12px;font-weight:600;color:#326b59;cursor:pointer}
+#bloomSchedule .bloom-extra-complete input{width:18px;height:18px;accent-color:#326b59;cursor:pointer}
+#bloomSchedule .bloom-extra-scheduled.is-complete{opacity:.75}
+#bloomSchedule .bloom-extra-scheduled.is-complete .bloom-extra-name{text-decoration:line-through}
+</style>
+<script id="bloom-extra-completion">
+(function(){
+function addCompletionControls(){
+ const schedule=document.getElementById('bloomSchedule');
+ if(!schedule)return;
+ const selected=new Date(dayKey()+'T12:00:00');
+ if(Number.isNaN(selected.getTime()))return;
+ const monday=new Date(selected);monday.setDate(selected.getDate()-(selected.getDay()+6)%7);
+ schedule.querySelectorAll('.bloom-day').forEach((row,index)=>{
+  const date=new Date(monday);date.setDate(monday.getDate()+index);
+  const key=date.getFullYear()+'-'+String(date.getMonth()+1).padStart(2,'0')+'-'+String(date.getDate()).padStart(2,'0');
+  const extras=(state.customWorkouts||[]).filter(w=>w.date===key);
+  const lines=row.querySelectorAll('.bloom-extra-scheduled');
+  lines.forEach((line,i)=>{
+   const workout=extras[i];if(!workout||line.querySelector('.bloom-extra-complete'))return;
+   const label=document.createElement('label');label.className='bloom-extra-complete';
+   const checkbox=document.createElement('input');checkbox.type='checkbox';checkbox.checked=!!workout.completed;
+   checkbox.setAttribute('aria-label','Mark '+(line.firstChild?.textContent||'additional workout').trim()+' complete');
+   const caption=document.createElement('span');caption.textContent=workout.completed?'Done':'Complete';
+   line.classList.toggle('is-complete',!!workout.completed);
+   checkbox.addEventListener('change',()=>{
+    workout.completed=checkbox.checked;
+    save();render();
+   });
+   label.append(checkbox,caption);
+   const remove=line.querySelector('.bloom-week-remove');
+   if(remove)line.insertBefore(label,remove);else line.appendChild(label);
+  });
+ });
+}
+const previousRender=render;
+render=function(){previousRender();addCompletionControls()};
+addCompletionControls();
+})();
+</script>
