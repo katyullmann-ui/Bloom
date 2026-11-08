@@ -1011,3 +1011,36 @@ input.addEventListener('input',window.bloomRefList);
 window.bloomRefList();
 })();
 </script>
+
+<script id="bloom-search-history-diagnostic">
+(function(){
+const original=window.bloomRefList;
+window.bloomRefList=function(){
+ const input=document.getElementById('bloomRefSearch'),results=document.getElementById('bloomRefResults');
+ if(!input||!results)return;
+ const query=input.value.trim().toLowerCase();
+ const previous=(Object.values(state.days||{}).flatMap(d=>d.items||[]));
+ const saved=state.quickMeals||[];
+ const known=[
+ {name:'Raisin Bran cereal, 1.5 servings with 1.5 cups 2% milk',cal:465,protein:18,carbs:82,fat:9,fiber:10,fluid:12,source:'example'},
+ {name:'Raisin Bran cereal, 1 cup',cal:190,protein:5,carbs:47,fat:1,fiber:7,fluid:0,source:'example'},
+ {name:'Froot Loops cereal, 1.5 servings with 1.5 cups 2% milk',cal:425,protein:16,carbs:67,fat:12,fiber:3,fluid:12,source:'example'}
+ ];
+ const catalog=typeof bloomFoodCatalog!=='undefined'?bloomFoodCatalog:[];
+ const mode=input.closest('.bloom-ref-food')?.querySelector('.bloom-ref-tabs button.selected')?.textContent?.trim().toLowerCase()==='saved'?'saved':'recent';
+ const pool=mode==='saved'?saved:[...previous.slice().reverse(),...saved.slice().reverse(),...catalog,...known];
+ const seen=new Set(),matches=pool.filter(x=>{
+  const key=String(x?.name||'').toLowerCase().trim();
+  if(!key||seen.has(key)||(!key.includes(query)&&!(x.aliases||[]).some(a=>String(a).toLowerCase().includes(query))))return false;
+  seen.add(key);return true;
+ }).slice(0,50);
+ window.bloomRefShown=matches;
+ if(!query){results.innerHTML='<p class="small">Type a food name to search.</p>';return}
+ const count=previous.length+saved.length;
+ const note=count===0?'<p class="small">No previous food entries are stored in this browser. You can still add foods from the suggestions below or paste them from ChatGPT.</p>':'';
+ results.innerHTML=note+(matches.length?matches.map((x,i)=>'<div class="quickfood-item"><div><b>'+bloomSafe(x.name)+'</b><div class="small">'+Math.round(Number(x.cal)||0)+' cal · '+(Number(x.protein)||0).toFixed(1)+' g protein'+(x.source==='example'?' · suggested estimate':'')+'</div></div><button type="button" onclick="bloomRefAdd('+i+')">Add +</button></div>').join(''):'<p class="small">No matching foods found. Try a shorter name.</p>');
+};
+const search=document.getElementById('bloomRefSearch');
+if(search){search.addEventListener('input',window.bloomRefList);window.bloomRefList()}
+})();
+</script>
