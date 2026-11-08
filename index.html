@@ -972,3 +972,42 @@ render=function(){previousRender();refreshHomeExtraChecks()};
 refreshHomeExtraChecks();
 })();
 </script>
+
+<style id="bloom-food-search-repair-style">
+#bloomRefResults:not(:empty){display:block!important;visibility:visible!important;max-height:360px;overflow-y:auto;margin-top:12px}
+#bloomRefResults .quickfood-item{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid #edf0ec}
+#bloomRefResults .quickfood-item button{background:#e3f0e9;border:0;border-radius:10px;padding:9px 12px;color:#326b59;font-weight:650;flex-shrink:0}
+</style>
+<script id="bloom-food-search-repair">
+(function(){
+const input=document.getElementById('bloomRefSearch');
+const results=document.getElementById('bloomRefResults');
+if(!input||!results)return;
+let mode='recent';
+window.bloomRefMode=function(m){
+ mode=m==='saved'?'saved':'recent';
+ const buttons=input.closest('.bloom-ref-food')?.querySelectorAll('.bloom-ref-tabs button')||[];
+ buttons.forEach((b,i)=>b.classList.toggle('selected',i===(mode==='recent'?0:1)));
+ window.bloomRefList();
+};
+window.bloomRefList=function(){
+ const q=input.value.trim().toLowerCase();
+ const history=typeof bloomFoodsHistory==='function'?bloomFoodsHistory():[];
+ const saved=typeof bloomSavedMeals==='function'?bloomSavedMeals():[];
+ const catalog=typeof bloomFoodCatalog!=='undefined'&&Array.isArray(bloomFoodCatalog)?bloomFoodCatalog:[];
+ // Search saved meals and prior daily entries together, with a catalog fallback.
+ const pool=mode==='saved'?[...saved.slice().reverse()]:[...history,...saved.slice().reverse(),...catalog];
+ const seen=new Set();
+ const matches=pool.filter(x=>{
+  const name=String(x?.name||'').trim(),key=name.toLowerCase();
+  if(!key||seen.has(key)||(!key.includes(q)&&!(x.aliases||[]).some(a=>String(a).toLowerCase().includes(q))))return false;
+  seen.add(key);return true;
+ }).slice(0,50);
+ window.bloomRefShown=matches;
+ if(!q){results.innerHTML='<p class="small">Start typing to find a food you have logged before.</p>';return}
+ results.innerHTML=matches.length?matches.map((x,i)=>'<div class="quickfood-item"><div><b>'+bloomSafe(x.name)+'</b><div class="small">'+Math.round(Number(x.cal)||0)+' cal · '+(Number(x.protein)||0).toFixed(1)+' g protein</div></div><button type="button" onclick="bloomRefAdd('+i+')">Add +</button></div>').join(''):'<p class="small">No matching foods found. Try a shorter name, or paste a new food below.</p>';
+};
+input.addEventListener('input',window.bloomRefList);
+window.bloomRefList();
+})();
+</script>
