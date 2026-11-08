@@ -470,7 +470,7 @@ const previous=foodPanel.querySelector('#bloomSimpleFind');
 const heading=Array.from(foodPanel.querySelectorAll('h3')).find(x=>/recent foods/i.test(x.textContent));
 if(heading)heading.textContent='Previously logged';
 const toolbar=document.createElement('div');
-toolbar.className='bloom-ref-tabs';toolbar.innerHTML='<button class="selected" data-mode="recent" onclick="bloomFoodMode(\'recent\')">Recent</button><button data-mode="saved" onclick="bloomFoodMode(\'saved\')">Saved</button>';
+toolbar.className='bloom-ref-tabs';toolbar.innerHTML='<button class="selected" data-mode="recent" onclick="bloomFoodMode(\'recent\')">Recent</button>';
 if(previous)previous.insertAdjacentElement('beforebegin',toolbar);
 const style=document.createElement('style');style.textContent='.bloom-ref-tabs{display:flex;gap:7px;margin:12px 0}.bloom-ref-tabs button{flex:1;border:0;border-radius:25px;background:#f4f5f2;color:#7c8983;padding:9px;font-weight:600}.bloom-ref-tabs button.selected{background:#e3f0e9;color:#326b59}';document.head.appendChild(style);
 let mode='recent';
@@ -578,7 +578,7 @@ const movement=document.getElementById('movement');if(movement){const card=movem
 const log=document.getElementById('log');
 const oldPanel=log.querySelector('.bloom-food-simple');
 if(oldPanel){
-const search=document.createElement('section');search.className='card bloom-ref-food';search.innerHTML='<div class="bloom-ref-tabs"><button class="selected" onclick="bloomRefMode(\'recent\')">Recent</button><button onclick="bloomRefMode(\'saved\')">Saved</button></div><input class="field" id="bloomRefSearch" placeholder="Find food or meal you have logged" oninput="bloomRefList()"><div class="bloom-ref-results" id="bloomRefResults"></div>';
+const search=document.createElement('section');search.className='card bloom-ref-food';search.innerHTML='<div class="bloom-ref-tabs"><button class="selected" onclick="bloomRefMode(\'recent\')">Recent</button></div><input class="field" id="bloomRefSearch" placeholder="Find food or meal you have logged" oninput="bloomRefList()"><div class="bloom-ref-results" id="bloomRefResults"></div>';
 oldPanel.insertAdjacentElement('beforebegin',search);
 const paste=document.createElement('section');paste.className='card bloom-ref-food';paste.innerHTML='<h3>Paste from ChatGPT</h3><textarea id="bloomRefPaste" class="field" placeholder="Paste your BLOOM FOOD entry here..."></textarea><button class="btn small" onclick="bloomRefPasteFood()">Add food</button><div class="small" id="bloomRefFeedback" role="status" style="margin-top:10px">Food will save to the selected date and update Home.</div>';search.insertAdjacentElement('afterend',paste);
 let mode='recent';
@@ -612,7 +612,7 @@ const oldEntries=document.getElementById('homeFoodLog');
 if(oldEntries)oldEntries.style.display='none';
 let search=document.getElementById('bloomRefSearch')?.closest('.bloom-ref-food');
 let paste=document.getElementById('bloomRefPaste')?.closest('.bloom-ref-food');
-if(!search){search=document.createElement('section');search.className='card bloom-ref-food';search.innerHTML='<div class="bloom-ref-tabs"><button class="selected" onclick="bloomRefMode(\'recent\')">Recent</button><button onclick="bloomRefMode(\'saved\')">Saved</button></div><input class="field" id="bloomRefSearch" placeholder="Find a previously logged food" oninput="bloomRefList()"><div class="bloom-ref-results" id="bloomRefResults"></div>';}
+if(!search){search=document.createElement('section');search.className='card bloom-ref-food';search.innerHTML='<div class="bloom-ref-tabs"><button class="selected" onclick="bloomRefMode(\'recent\')">Recent</button></div><input class="field" id="bloomRefSearch" placeholder="Find a previously logged food" oninput="bloomRefList()"><div class="bloom-ref-results" id="bloomRefResults"></div>';}
 if(!paste){paste=document.createElement('section');paste.className='card bloom-ref-food';paste.innerHTML='<h3>Paste from ChatGPT</h3><textarea class="field" id="bloomRefPaste" placeholder="Paste your BLOOM FOOD entry here..."></textarea><button class="btn small" onclick="bloomRefPasteFood()">Add food</button><div id="bloomRefFeedback" class="small">Food will save to the selected date and update Home.</div>';}
 let today=document.getElementById('bloomFoodTodayFixed');
 if(!today){today=document.createElement('section');today.id='bloomFoodTodayFixed';today.className='card bloom-food-today';today.innerHTML='<h3 style="margin-top:0">Today\'s food</h3><div id="bloomFoodTodayItems"></div>';}
@@ -1046,3 +1046,5 @@ if(search){search.addEventListener('input',window.bloomRefList);window.bloomRefL
 </script>
 
 
+
+<style id="bloom-remove-saved-tab">.bloom-ref-tabs button[data-mode="saved"]{display:none!important}</style>
