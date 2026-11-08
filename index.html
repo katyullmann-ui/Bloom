@@ -937,3 +937,38 @@ render=function(){previousRender();addCompletionControls()};
 addCompletionControls();
 })();
 </script>
+
+<style id="bloom-home-extra-check-style">
+#bloomHomeExtraWorkouts .bloom-extra-home-check{display:inline-flex;align-items:center;gap:8px;margin-top:8px;color:#326b59;font-weight:600;cursor:pointer}
+#bloomHomeExtraWorkouts .bloom-extra-home-check input{width:21px;height:21px;accent-color:#326b59}
+#bloomHomeExtraWorkouts .bloom-extra-home-done{text-decoration:line-through;opacity:.7}
+</style>
+<script id="bloom-home-extra-check">
+(function(){
+function refreshHomeExtraChecks(){
+ const root=document.getElementById('bloomHomeExtraWorkouts');
+ if(!root)return;
+ const entries=(state.customWorkouts||[]).filter(w=>w.date===dayKey());
+ const rows=root.querySelectorAll('.bloom-multi-row');
+ rows.forEach((row,i)=>{
+  const workout=entries[i];if(!workout)return;
+  const details=row.firstElementChild;
+  if(!details)return;
+  const heading=details.querySelector('b');
+  if(heading)heading.classList.toggle('bloom-extra-home-done',!!workout.completed);
+  let label=details.querySelector('.bloom-extra-home-check');
+  if(!label){
+   label=document.createElement('label');label.className='bloom-extra-home-check';
+   const input=document.createElement('input');input.type='checkbox';
+   const span=document.createElement('span');label.append(input,span);details.appendChild(label);
+   input.addEventListener('change',()=>{workout.completed=input.checked;save();render()});
+  }
+  label.querySelector('input').checked=!!workout.completed;
+  label.querySelector('span').textContent=workout.completed?'Completed':'Complete';
+ });
+}
+const previousRender=render;
+render=function(){previousRender();refreshHomeExtraChecks()};
+refreshHomeExtraChecks();
+})();
+</script>
