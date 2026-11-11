@@ -1090,3 +1090,27 @@ if(search){search.addEventListener('input',window.bloomRefList);window.bloomRefL
  refresh();
 })();
 </script>
+
+<script id="bloom-steps-date-display-v3">
+(function(){
+ const input=document.getElementById('bloomRefSteps');if(!input)return;
+ let lastDate='';
+ const previous=render;
+ function update(){
+  const date=document.getElementById('date').value;
+  if(date!==lastDate){
+   lastDate=date;
+   const v=state.days[date]?.steps;
+   input.value=v==null?'':String(v);
+   input.dataset.entryDate=date;
+  }
+  const label=document.querySelector('label[for="bloomRefSteps"]');
+  if(label){const d=new Date(date+'T12:00:00');label.textContent='Steps for '+d.toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'})}
+ }
+ render=function(){previous();update()};
+ // When navigating days, commit the current edit before switching dates.
+ document.getElementById('week').addEventListener('pointerdown',()=>{if(document.activeElement===input)input.blur()},true);
+ document.getElementById('date').addEventListener('pointerdown',()=>{if(document.activeElement===input)input.blur()},true);
+ update();
+})();
+</script>
