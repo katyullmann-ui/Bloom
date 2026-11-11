@@ -1060,3 +1060,33 @@ if(search){search.addEventListener('input',window.bloomRefList);window.bloomRefL
 <script id="bloom-six-week-goal">(function(){const oldRender=render;render=function(){oldRender();const home=document.getElementById('home');if(!home)return;let card=document.getElementById('bloomSixWeekGoal');if(!card){card=document.createElement('div');card.id='bloomSixWeekGoal';home.insertBefore(card,home.children[2]||null)}card.innerHTML='<b>Six-week wellness goal · 115 lb</b><div class="small">November 15 – December 26, 2026 · Weeks begin Sunday. Recovery comes first: missed goals do not need to be made up.</div>'};render()})();</script>
 
 <script id="bloom-step-date-clarity">(function(){const prior=render;render=function(){prior();const field=document.getElementById('bloomRefSteps');const label=document.querySelector('label[for="bloomRefSteps"]');if(label){const date=new Date(dayKey()+'T12:00:00');label.textContent='Steps for '+date.toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'})}if(field&&document.activeElement!==field)field.value=state.days[dayKey()]?.steps??''};render()})();</script>
+<script id="bloom-steps-isolated-by-date-v2">
+(function(){
+ const old=document.getElementById('bloomRefSteps');if(!old)return;
+ const input=old.cloneNode(true);old.replaceWith(input);
+ let editingDate=null;
+ function key(){return document.getElementById('date').value}
+ function refresh(){
+   const date=key();const record=state.days[date];
+   if(document.activeElement!==input)input.value=record&&record.steps!=null?String(record.steps):'';
+   const label=document.querySelector('label[for="bloomRefSteps"]');
+   if(label){const d=new Date(date+'T12:00:00');label.textContent='Steps for '+d.toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'})}
+ }
+ function commit(){
+   if(!editingDate)return;
+   const date=editingDate;editingDate=null;
+   const raw=input.value.trim();if(raw==='')return;
+   const n=Number(raw);if(!Number.isFinite(n)||n<0)return;
+   // Replace only the selected date's record; never reuse a day object.
+   const current=state.days[date]||{steps:null,items:[],checks:{},supp:{}};
+   state.days[date]={...current,steps:Math.round(n)};
+   save();render();
+ }
+ input.addEventListener('focus',()=>{editingDate=key()});
+ input.addEventListener('change',commit);
+ input.addEventListener('blur',commit);
+ input.addEventListener('keydown',e=>{if(e.key==='Enter')input.blur()});
+ const prev=render;render=function(){prev();refresh()};
+ refresh();
+})();
+</script>
