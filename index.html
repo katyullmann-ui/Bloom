@@ -899,7 +899,7 @@ alert('Workout added for '+date+'.');
 <script id="bloom-six-week-goal">
 (function(){
  const oldRender=render;
- render=function(){oldRender();let home=document.getElementById('home');if(!home)return;let card=document.getElementById('bloomSixWeekGoal');if(!card){card=document.createElement('div');card.id='bloomSixWeekGoal';home.insertBefore(card,home.children[2]||null)}card.innerHTML='<b>Six-week wellness goal · 115 lb</b><div class="small">November 15 – December 26, 2026 · Weeks begin Sunday. Recovery comes first: rest days and missed targets never need to be made up.</div>'};render();
+ render=function(){oldRender();let home=document.getElementById('home');if(!home)return;let card=document.getElementById('bloomSixWeekGoal');if(!card){card=document.createElement('div');card.id='bloomSixWeekGoal';home.insertBefore(card,home.children[2]||null)}card.innerHTML='<b>Eight-week wellness goal · 115 lb</b><div class="small">November 15, 2026 – January 9, 2027 · Weeks begin Sunday. Recovery comes first: rest days and missed targets never need to be made up.</div>'};render();
 })();
 <\/script></body></html>
 
@@ -1057,7 +1057,7 @@ if(search){search.addEventListener('input',window.bloomRefList);window.bloomRefL
 <style id="bloom-remove-saved-tab">.bloom-ref-tabs button[data-mode="saved"]{display:none!important}</style>
 
 <style id="bloom-six-week-goal-style">#bloomSixWeekGoal{margin:14px 0;padding:16px;border:1px solid #e2e9e1;border-radius:16px;background:#f5f8f3}#bloomSixWeekGoal b{color:#326b59}#bloomSixWeekGoal .small{margin-top:6px}</style>
-<script id="bloom-six-week-goal">(function(){const oldRender=render;render=function(){oldRender();const home=document.getElementById('home');if(!home)return;let card=document.getElementById('bloomSixWeekGoal');if(!card){card=document.createElement('div');card.id='bloomSixWeekGoal';home.insertBefore(card,home.children[2]||null)}card.innerHTML='<b>Six-week wellness goal · 115 lb</b><div class="small">November 15 – December 26, 2026 · Weeks begin Sunday. Recovery comes first: missed goals do not need to be made up.</div>'};render()})();</script>
+<script id="bloom-six-week-goal">(function(){const oldRender=render;render=function(){oldRender();const home=document.getElementById('home');if(!home)return;let card=document.getElementById('bloomSixWeekGoal');if(!card){card=document.createElement('div');card.id='bloomSixWeekGoal';home.insertBefore(card,home.children[2]||null)}card.innerHTML='<b>Eight-week wellness goal · 115 lb</b><div class="small">November 15, 2026 – January 9, 2027 · Weeks begin Sunday. Recovery comes first: missed goals do not need to be made up.</div>'};render()})();</script>
 
 <script id="bloom-step-date-clarity">(function(){const prior=render;render=function(){prior();const field=document.getElementById('bloomRefSteps');const label=document.querySelector('label[for="bloomRefSteps"]');if(label){const date=new Date(dayKey()+'T12:00:00');label.textContent='Steps for '+date.toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'})}if(field&&document.activeElement!==field)field.value=state.days[dayKey()]?.steps??''};render()})();</script>
 <script id="bloom-steps-isolated-by-date-v2">
