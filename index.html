@@ -195,7 +195,7 @@ for(const k of dates)state.days[k]=backup.days[k];
 if(backup.weights&&typeof backup.weights==='object')state.weights={...(state.weights||{}),...backup.weights};
 if(Array.isArray(backup.quickMeals)){const existing=Array.isArray(state.quickMeals)?state.quickMeals:[];const names=new Set(existing.map(x=>String(x.name||'').toLowerCase()));state.quickMeals=existing.concat(backup.quickMeals.filter(x=>x&&x.name&&!names.has(String(x.name).toLowerCase())));}
 save();
-render();
+try{render()}catch(renderErr){console.error('Bloom refresh after restore:',renderErr)}
 alert('Restored '+dates.length+' dates. Your food, fluids, and steps should now appear on the selected dates.');
 }catch(err){
 try{state=JSON.parse(before);save();render()}catch(rollbackErr){console.error('Bloom restore rollback:',rollbackErr)}
