@@ -1185,9 +1185,9 @@ if(search){search.addEventListener('input',window.bloomRefList);window.bloomRefL
   const d=state.days[date]||(state.days[date]={steps:null,items:[],checks:{},supp:{}});
   if(!d.checks||typeof d.checks!=='object')d.checks={};
   const checked=habits.filter(([id])=>d.checks['prep8_'+id]===true).length;
-  card.innerHTML='<h3>🌿 Recovery & pregnancy prep</h3><div class="small">Eight-week daily checklist · Nov 11–Jan 5</div>'+
-  '<div class="small" style="margin-top:8px">'+(active?'Choose what feels right today. Rest counts as recovery.':'You can view this checklist for any day. No pressure to complete every item.')+'</div>'+
-  '<div class="bloom-habit-count">'+checked+' of '+habits.length+' completed today</div>'+
+  card.innerHTML='<h3>🌿 8-Week Bonus Goal</h3><div class="small">Recovery & pregnancy prep · Nov 11–Jan 5</div>'+
+  '<div class="small" style="margin-top:8px">'+(active?'Optional daily habits. Rest counts as recovery.':'A bonus goal, not a requirement. No pressure to complete every item.')+'</div>'+
+  '<div class="bloom-habit-count">'+checked+' of '+habits.length+' bonus habits completed today</div>'+
   habits.map(([id,name])=>'<label class="bloom-habit"><input type="checkbox" data-habit="'+esc(id)+'" '+(d.checks['prep8_'+id]?'checked':'')+'><span>'+esc(name)+'</span></label>').join('')+
   '<p class="small" style="margin-top:12px">After your D&C, follow your care team’s instructions. Skip movement until cleared. There is no need to make up missed habits.</p>';
  }
