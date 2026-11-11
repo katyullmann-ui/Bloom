@@ -1131,7 +1131,12 @@ if(search){search.addEventListener('input',window.bloomRefList);window.bloomRefL
    const d=new Date(date+'T12:00:00');label.textContent='Steps for '+d.toLocaleDateString(undefined,{weekday:'long',month:'short',day:'numeric'});
    const start=new Date(d);start.setDate(d.getDate()-d.getDay());let total=0;
    for(let i=0;i<7;i++){const x=new Date(start);x.setDate(start.getDate()+i);const k=x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0');total+=Number(state.days[k]?.steps)||0}
-   weekly.textContent='This week: '+total.toLocaleString()+' / '+Number(state.goals.steps||60000).toLocaleString()+' steps';
+   const weekGoal=Number(state.goals.steps||60000),dayGoal=Math.ceil(weekGoal/7);
+   const recorded=Number(state.days[date]?.steps)||0;
+   const dayLeft=Math.max(0,dayGoal-recorded),weekLeft=Math.max(0,weekGoal-total);
+   const dayStatus=card.querySelector('#bloomIndependentDayRemaining');
+   if(dayStatus)dayStatus.textContent=dayLeft===0?'Daily step goal reached!':dayLeft.toLocaleString()+' more steps to reach today’s goal ('+dayGoal.toLocaleString()+')';
+   weekly.textContent='This week: '+total.toLocaleString()+' / '+weekGoal.toLocaleString()+' · '+(weekLeft===0?'Weekly step goal reached!':weekLeft.toLocaleString()+' more steps needed this week');
  }
  card.querySelector('#bloomIndependentSave').addEventListener('click',()=>{
    const date=selected(),raw=input.value.trim(),n=Number(raw);
@@ -1146,3 +1151,6 @@ if(search){search.addEventListener('input',window.bloomRefList);window.bloomRefL
  sync();
 })();
 </script>
+
+<style id="bloom-step-remaining-style">#bloomIndependentDayRemaining{font-weight:650;color:#326b59;margin-top:14px}#bloomIndependentWeek{margin-top:12px!important;line-height:1.5}</style>
+<script id="bloom-step-remaining-v5">(function(){const card=document.getElementById('bloomStepsIndependent');if(!card)return;const weekly=card.querySelector('#bloomIndependentWeek');if(!weekly)return;const daily=document.createElement('div');daily.id='bloomIndependentDayRemaining';daily.className='small';weekly.insertAdjacentElement('beforebegin',daily);render()})();</script>
