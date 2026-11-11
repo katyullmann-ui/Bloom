@@ -1114,3 +1114,35 @@ if(search){search.addEventListener('input',window.bloomRefList);window.bloomRefL
  update();
 })();
 </script>
+
+<style id="bloom-steps-replacement-style">#home .home-steps{display:none!important}#bloomStepsIndependent{padding:20px;margin:14px 0}#bloomStepsIndependent input{width:100%;box-sizing:border-box}#bloomStepsIndependent .bloom-step-actions{display:flex;gap:10px;align-items:center;margin-top:12px}#bloomStepsIndependent .small{margin-top:10px}</style>
+<script id="bloom-steps-replacement-v4">
+(function(){
+ const home=document.getElementById('home');if(!home)return;
+ const card=document.createElement('div');card.id='bloomStepsIndependent';card.className='card';
+ card.innerHTML='<h3>👟 Your steps</h3><label id="bloomIndependentDate" class="small"></label><input class="field" id="bloomIndependentInput" type="number" inputmode="numeric" min="0" placeholder="Not logged"><div class="bloom-step-actions"><button class="btn" id="bloomIndependentSave" type="button">Save steps</button><span class="small" id="bloomIndependentSaved"></span></div><div class="small" id="bloomIndependentWeek"></div>';
+ const existing=home.querySelector('.home-steps');if(existing)existing.insertAdjacentElement('afterend',card);else home.prepend(card);
+ const input=card.querySelector('#bloomIndependentInput'),label=card.querySelector('#bloomIndependentDate'),saved=card.querySelector('#bloomIndependentSaved'),weekly=card.querySelector('#bloomIndependentWeek');
+ let displayedDate='';
+ function selected(){return document.getElementById('date').value}
+ function sync(){
+   const date=selected();if(!date)return;
+   if(date!==displayedDate){displayedDate=date;input.value=state.days[date]?.steps??'';saved.textContent=''}
+   const d=new Date(date+'T12:00:00');label.textContent='Steps for '+d.toLocaleDateString(undefined,{weekday:'long',month:'short',day:'numeric'});
+   const start=new Date(d);start.setDate(d.getDate()-d.getDay());let total=0;
+   for(let i=0;i<7;i++){const x=new Date(start);x.setDate(start.getDate()+i);const k=x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0');total+=Number(state.days[k]?.steps)||0}
+   weekly.textContent='This week: '+total.toLocaleString()+' / '+Number(state.goals.steps||60000).toLocaleString()+' steps';
+ }
+ card.querySelector('#bloomIndependentSave').addEventListener('click',()=>{
+   const date=selected(),raw=input.value.trim(),n=Number(raw);
+   if(!date||raw===''||!Number.isFinite(n)||n<0){saved.textContent='Enter a valid step count';return}
+   const previous=state.days[date]||{steps:null,items:[],checks:{},supp:{}};
+   state.days[date]={...previous,steps:Math.round(n)};
+   save();saved.textContent='Saved for '+date;sync();
+ });
+ document.getElementById('week').addEventListener('click',()=>queueMicrotask(sync));
+ document.getElementById('date').addEventListener('change',()=>queueMicrotask(sync));
+ const previousRender=render;render=function(){try{previousRender()}finally{sync()}};
+ sync();
+})();
+</script>
