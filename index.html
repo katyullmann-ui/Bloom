@@ -208,9 +208,8 @@ $('microInputs').innerHTML=Object.entries(micro).map(([k,[name,unit]])=>`<div><l
 function bloomLocalToday(){const now=new Date();return `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;}
 function bloomShowToday(){const current=bloomLocalToday();if($('date').value!==current){$('date').value=current;render();}}
 $('date').value=bloomLocalToday();
-window.addEventListener('pageshow',bloomShowToday);
-document.addEventListener('visibilitychange',()=>{if(!document.hidden)bloomShowToday();});
-window.addEventListener('focus',bloomShowToday);
+// Preserve the selected date when returning from the keyboard or another app.
+// Users can choose a different date in the week strip.
 save();render();
 </script>
 <script>
@@ -569,7 +568,8 @@ const newEntry=document.createElement('div');
 newEntry.innerHTML='<h3 style="margin:0 0 13px">👟 Your steps</h3><label for="bloomRefSteps" class="small">Enter today\'s steps</label><input id="bloomRefSteps" class="field" type="number" min="0" inputmode="numeric" placeholder="Enter steps"><div class="small" id="bloomRefStepLabel"></div><div class="number" id="bloomRefStepValue" style="font-size:26px;font-weight:750;margin:6px 0"></div><div class="small" id="bloomRefStepStatus"></div>';
 step.insertBefore(newEntry,step.firstChild);
 const input=document.getElementById('bloomRefSteps');
-input.addEventListener('change',()=>{const n=Number(input.value);if(input.value.trim()!==''&&Number.isFinite(n)&&n>=0){day().steps=Math.round(n);save();render()}});
+input.addEventListener('focus',()=>{input.dataset.entryDate=dayKey()});
+input.addEventListener('change',()=>{const n=Number(input.value);const key=input.dataset.entryDate||dayKey();if(input.value.trim()!==''&&Number.isFinite(n)&&n>=0){if(!state.days[key])state.days[key]={steps:null,items:[],checks:{},supp:{}};state.days[key].steps=Math.round(n);save();input.blur();render()}});
 input.addEventListener('keydown',e=>{if(e.key==='Enter'){input.blur()}});
 const old=render;
 render=function(){old();if(document.activeElement!==input)input.value=day().steps??'';const goal=Math.ceil((state.goals.steps||60000)/7);const n=Number(day().steps||0);document.getElementById('bloomRefStepLabel').textContent='Today · Goal '+goal.toLocaleString();document.getElementById('bloomRefStepValue').textContent=n.toLocaleString()+' steps';document.getElementById('bloomRefStepStatus').textContent=n>=goal?'✓ Daily goal reached! '+(n-goal).toLocaleString()+' extra steps':(goal-n).toLocaleString()+' steps left today';const weekly=document.getElementById('bloomStepWeekly');if(weekly){const d=new Date(dayKey()+'T12:00:00'),weekday=d.getDay();d.setDate(d.getDate()-weekday);let total=0;for(let i=0;i<7;i++){let x=new Date(d);x.setDate(d.getDate()+i);let k=x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0');total+=Number(state.days[k]?.steps||0)}const target=state.goals.steps||60000;weekly.innerHTML='<div class="small">This week · Goal '+target.toLocaleString()+'</div><div class="number">'+total.toLocaleString()+' <span class="small">/ '+target.toLocaleString()+'</span></div><div class="bar"><div class="fill" style="width:'+Math.min(100,total/target*100)+'%"></div></div><div class="small" style="margin-top:7px;color:#326b59">'+Math.max(0,target-total).toLocaleString()+' steps left this week</div>'}};
@@ -1058,3 +1058,5 @@ if(search){search.addEventListener('input',window.bloomRefList);window.bloomRefL
 
 <style id="bloom-six-week-goal-style">#bloomSixWeekGoal{margin:14px 0;padding:16px;border:1px solid #e2e9e1;border-radius:16px;background:#f5f8f3}#bloomSixWeekGoal b{color:#326b59}#bloomSixWeekGoal .small{margin-top:6px}</style>
 <script id="bloom-six-week-goal">(function(){const oldRender=render;render=function(){oldRender();const home=document.getElementById('home');if(!home)return;let card=document.getElementById('bloomSixWeekGoal');if(!card){card=document.createElement('div');card.id='bloomSixWeekGoal';home.insertBefore(card,home.children[2]||null)}card.innerHTML='<b>Six-week wellness goal · 115 lb</b><div class="small">November 15 – December 26, 2026 · Weeks begin Sunday. Recovery comes first: missed goals do not need to be made up.</div>'};render()})();</script>
+
+<script id="bloom-step-date-clarity">(function(){const prior=render;render=function(){prior();const field=document.getElementById('bloomRefSteps');const label=document.querySelector('label[for="bloomRefSteps"]');if(label){const date=new Date(dayKey()+'T12:00:00');label.textContent='Steps for '+date.toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'})}if(field&&document.activeElement!==field)field.value=state.days[dayKey()]?.steps??''};render()})();</script>
