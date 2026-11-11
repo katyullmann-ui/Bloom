@@ -1154,3 +1154,51 @@ if(search){search.addEventListener('input',window.bloomRefList);window.bloomRefL
 
 <style id="bloom-step-remaining-style">#bloomIndependentDayRemaining{font-weight:650;color:#326b59;margin-top:14px}#bloomIndependentWeek{margin-top:12px!important;line-height:1.5}</style>
 <script id="bloom-step-remaining-v5">(function(){const card=document.getElementById('bloomStepsIndependent');if(!card)return;const weekly=card.querySelector('#bloomIndependentWeek');if(!weekly)return;const daily=document.createElement('div');daily.id='bloomIndependentDayRemaining';daily.className='small';weekly.insertAdjacentElement('beforebegin',daily);render()})();</script>
+<style id="bloom-eight-week-checklist-style">
+#bloomEightWeek{margin:14px 0;padding:18px;border:1px solid #dce7dc;border-radius:16px;background:#f7faf6}
+#bloomEightWeek h3{margin:0 0 6px}
+#bloomEightWeek .bloom-habit{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #e4ebe3;font-size:14px}
+#bloomEightWeek .bloom-habit:last-child{border-bottom:0}
+#bloomEightWeek input[type=checkbox]{width:21px;height:21px;flex:none;accent-color:#4d866a}
+#bloomEightWeek .bloom-habit span{flex:1}
+#bloomEightWeek .bloom-habit input:checked+span{color:#52775f}
+#bloomEightWeek .bloom-habit-count{font-size:12px;color:#54715e;margin:8px 0}
+</style>
+<script id="bloom-eight-week-checklist">
+(function(){
+ const home=document.getElementById('home');if(!home)return;
+ const card=document.createElement('section');card.id='bloomEightWeek';card.className='card';
+ const habits=[
+  ['prenatal','Take prenatal + choline, as directed'],
+  ['protein','Include protein with meals'],
+  ['produce','Eat fruit and vegetables (aim for 5 servings)'],
+  ['movement','Walk or move for 20–30 minutes, once cleared'],
+  ['fluids','Drink enough fluids'],
+  ['sleep','Get 7–9 hours of sleep']
+ ];
+ const start='2026-11-11',end='2027-01-05';
+ const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+ function selected(){return document.getElementById('date').value}
+ function update(){
+  const date=selected();if(!date)return;
+  const active=date>=start&&date<=end;
+  const d=state.days[date]||(state.days[date]={steps:null,items:[],checks:{},supp:{}});
+  if(!d.checks||typeof d.checks!=='object')d.checks={};
+  const checked=habits.filter(([id])=>d.checks['prep8_'+id]===true).length;
+  card.innerHTML='<h3>🌿 Recovery & pregnancy prep</h3><div class="small">Eight-week daily checklist · Nov 11–Jan 5</div>'+
+  '<div class="small" style="margin-top:8px">'+(active?'Choose what feels right today. Rest counts as recovery.':'You can view this checklist for any day. No pressure to complete every item.')+'</div>'+
+  '<div class="bloom-habit-count">'+checked+' of '+habits.length+' completed today</div>'+
+  habits.map(([id,name])=>'<label class="bloom-habit"><input type="checkbox" data-habit="'+esc(id)+'" '+(d.checks['prep8_'+id]?'checked':'')+'><span>'+esc(name)+'</span></label>').join('')+
+  '<p class="small" style="margin-top:12px">After your D&C, follow your care team’s instructions. Skip movement until cleared. There is no need to make up missed habits.</p>';
+ }
+ card.addEventListener('change',e=>{
+  const id=e.target?.dataset?.habit;if(!id||!habits.some(([key])=>key===id))return;
+  const date=selected(),d=state.days[date]||(state.days[date]={steps:null,items:[],checks:{},supp:{}});
+  d.checks=d.checks||{};d.checks['prep8_'+id]=e.target.checked;save();update();
+ });
+ const steps=document.getElementById('bloomStepsIndependent');
+ if(steps)steps.insertAdjacentElement('afterend',card);else home.appendChild(card);
+ const previous=render;render=function(){try{previous()}finally{update()}};
+ update();
+})();
+</script>
