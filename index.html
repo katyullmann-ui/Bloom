@@ -1131,11 +1131,22 @@ if(search){search.addEventListener('input',window.bloomRefList);window.bloomRefL
    const d=new Date(date+'T12:00:00');label.textContent='Steps for '+d.toLocaleDateString(undefined,{weekday:'long',month:'short',day:'numeric'});
    const start=new Date(d);start.setDate(d.getDate()-d.getDay());let total=0;
    for(let i=0;i<7;i++){const x=new Date(start);x.setDate(start.getDate()+i);const k=x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0');total+=Number(state.days[k]?.steps)||0}
-   const weekGoal=Number(state.goals.steps||60000),dayGoal=Math.ceil(weekGoal/7);
+   const weekGoal=Number(state.goals.steps||60000);
+   // The target for a selected day depends on steps completed before that day.
+   // Each week runs Sunday through Saturday.
+   let priorSteps=0;
+   for(let i=0;i<d.getDay();i++){
+     const x=new Date(start);x.setDate(start.getDate()+i);
+     const k=x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0');
+     priorSteps+=Number(state.days[k]?.steps)||0;
+   }
+   const daysRemaining=7-d.getDay();
+   const dayGoal=Math.ceil(Math.max(0,weekGoal-priorSteps)/daysRemaining);
    const recorded=Number(state.days[date]?.steps)||0;
    const dayLeft=Math.max(0,dayGoal-recorded),weekLeft=Math.max(0,weekGoal-total);
    const dayStatus=card.querySelector('#bloomIndependentDayRemaining');
-   if(dayStatus)dayStatus.textContent=dayLeft===0?'Daily step goal reached!':dayLeft.toLocaleString()+' more steps to reach today’s goal ('+dayGoal.toLocaleString()+')';
+   if(dayStatus)dayStatus.textContent=dayLeft===0?'Adjusted daily target reached! ('+dayGoal.toLocaleString()+' steps)':
+      dayLeft.toLocaleString()+' more steps to reach your adjusted daily target ('+dayGoal.toLocaleString()+')';
    weekly.textContent='This week: '+total.toLocaleString()+' / '+weekGoal.toLocaleString()+' · '+(weekLeft===0?'Weekly step goal reached!':weekLeft.toLocaleString()+' more steps needed this week');
  }
  card.querySelector('#bloomIndependentSave').addEventListener('click',()=>{
