@@ -79,6 +79,7 @@ h3{font-size:19px;font-weight:700}
 <section class="card home-section" id="quickFood"><h3>🍓 Quick food log</h3><p class="small">Find a food, reuse a recent entry, or save a favorite meal. Review nutrition before adding.</p><input class="field" id="quickFoodSearch" placeholder="Search foods, e.g. egg, beans, salmon" oninput="bloomQuickRender()"><div class="quickfood-tabs"><button type="button" onclick="bloomQuickTab('search')" id="qtab_search">Search</button><button type="button" onclick="bloomQuickTab('recent')" id="qtab_recent">Recent</button><button type="button" onclick="bloomQuickTab('saved')" id="qtab_saved">Saved meals</button></div><div id="quickFoodResults" class="quickfood-results"></div><div id="quickFoodEditor"></div><details style="margin-top:16px"><summary style="font-weight:700;cursor:pointer">✦ Try describing what you ate</summary><p class="quickfood-help">Experimental: recognizes a few common foods and estimates nutrition without sending your text anywhere. It is not AI and may miss ingredients. Review each estimate.</p><textarea class="field" id="quickFoodNatural" rows="2" placeholder="e.g. 2 eggs and 1 cup cooked spaghetti"></textarea><button class="btn small" onclick="bloomEstimateText()">Estimate foods</button><div id="quickFoodEstimate"></div></details><p class="quickfood-help" style="margin-top:12px">Imported BLOOM FOOD entries automatically appear under Saved meals. Optional Serving_Amount and Serving_Unit fields make portions reusable (for example, 0.5 and 1 cup). Nutrition values are estimates. Saved foods and meals stay in this browser with your Bloom data.</p></section><div class="card home-section"><div class="row"><h3>Daily nutrition</h3></div><div class="metrics" id="metrics"></div></div>
 <div class="card bloom-weight-card" id="bloomWeightCard"><div class="row"><div><div class="small">⚖ Weight</div><div class="number" id="bloomWeightLatest">No weight logged</div><div class="bloom-weight-note" id="bloomWeightDate"></div></div></div><div class="bloom-weight-actions"><input id="bloomWeightInput" class="field" type="number" min="1" max="1400" step="0.1" inputmode="decimal" placeholder="Weight (lb)" aria-label="Weight in pounds"><button class="btn small" onclick="bloomSaveWeight()">Save weight</button><button class="btn secondary small" onclick="bloomDeleteWeight()">Delete date</button></div><div class="bloom-weight-note">Logs weight for the date selected above.</div><div id="bloomWeightGraph" style="margin-top:12px"></div></div>
 <div id="homeFoodLog" style="display:none"></div>
+<div class="card home-section" id="bloomFertilityNutrients"><h3>🌿 Mediterranean diet · TTC nutrition</h3><p class="small">Daily choline goal: 450 mg, including food and supplements. Track DHA, EPA and plant omega-3 (ALA) separately. Check off supplements on Home to include them; unknown food nutrients are not zero.</p><div id="bloomFertilityTotals"></div></div>
 <div class="card home-section"><div class="row"><h3>Key nutrients</h3></div><div class="key-nutrients" id="homeNutrients"></div><p class="small">Still tracking means some food nutrients are unknown, not that you are deficient.</p><details><summary class="text-link">Food vs supplements details</summary><div id="nutrientsHome"></div></details></div>
 
 <div id="nutrientHighlights" class="hide"></div></section>
@@ -146,7 +147,7 @@ function addWater(oz){day().items.push({name:fmt(oz)+' oz water',cal:0,protein:0
   if(!obj.name||!obj.date||!/^\d{4}-\d{2}-\d{2}$/.test(obj.date))return {error:'Include Name and Date (YYYY-MM-DD).'};
   let dt=new Date(obj.date+'T12:00:00');if(isNaN(dt.getTime())||dt.getFullYear()!==Number(obj.date.slice(0,4))||dt.getMonth()+1!==Number(obj.date.slice(5,7))||dt.getDate()!==Number(obj.date.slice(8,10)))return {error:'The date is invalid.'};
   let item={name:obj.name,cal:0,protein:0,fiber:0,fluid:0,micro:{}};
-  const fields={calories:'cal',protein_g:'protein',carbs_g:'carbs',fat_g:'fat',fiber_g:'fiber',fluids_oz:'fluid',folate_mcg_dfe:'folate',iron_mg:'iron',dha_mg:'dha',vitamin_d_mcg:'vitd',iodine_mcg:'iodine',calcium_mg:'calcium',magnesium_mg:'magnesium',choline_mg:'choline'};
+  const fields={calories:'cal',protein_g:'protein',carbs_g:'carbs',fat_g:'fat',fiber_g:'fiber',fluids_oz:'fluid',folate_mcg_dfe:'folate',iron_mg:'iron',dha_mg:'dha',vitamin_d_mcg:'vitd',iodine_mcg:'iodine',calcium_mg:'calcium',magnesium_mg:'magnesium',choline_mg:'choline',epa_mg:'epa',ala_mg:'ala'};
   for(let [field,target] of Object.entries(fields)){
     let raw=obj[field];if(raw===undefined||/^(unknown|n\/a|\?|not known|)$/i.test(raw))continue;
     if(!/^\d+(?:\.\d+)?$/.test(raw))return {error:'Invalid '+field+'. Use a nonnegative number or unknown.'};
@@ -901,7 +902,27 @@ alert('Workout added for '+date+'.');
  const oldRender=render;
  render=function(){oldRender();let home=document.getElementById('home');if(!home)return;let card=document.getElementById('bloomSixWeekGoal');if(!card){card=document.createElement('div');card.id='bloomSixWeekGoal';home.insertBefore(card,home.children[2]||null)}card.innerHTML='<b>Eight-week wellness goal · 115 lb</b><div class="small">November 15, 2026 – January 9, 2027 · Weeks begin Sunday. Recovery comes first: rest days and missed targets never need to be made up.</div>'};render();
 })();
-<\/script></body></html>
+<\/script><script id="bloom-fertility-tracker">
+(function(){
+ const priorRender=render;
+ render=function(){
+  priorRender();
+  const target=document.getElementById('bloomFertilityTotals');
+  if(!target)return;
+  const d=day(),s=sum(),prenatal=!!d.supp?.prenatal,cholineCapsule=!!d.supp?.choline;
+  const foodCholine=Number(s.micro.choline||0),foodDha=Number(s.micro.dha||0),foodEpa=Number(s.micro.epa||0),foodAla=Number(s.micro.ala||0);
+  const cholineSupp=cholineCapsule?265:0, dhaSupp=prenatal?200:0,epaSupp=prenatal?60:0;
+  const rows=[
+   ['Choline',foodCholine+cholineSupp,'mg','450 mg daily goal',s.micro.choline!==undefined],
+   ['DHA',foodDha+dhaSupp,'mg','200 mg daily reference',s.micro.dha!==undefined],
+   ['EPA',foodEpa+epaSupp,'mg','Tracked separately; no individual target',s.micro.epa!==undefined],
+   ['Plant omega-3 (ALA)',foodAla,'mg','Tracked separately',s.micro.ala!==undefined]
+  ];
+  target.innerHTML=rows.map(([name,value,unit,goal,foodKnown])=>'<div class="entry" style="display:block"><div class="row"><b>'+name+'</b><b>'+fmt(value)+(foodKnown?'':'+')+' '+unit+'</b></div><div class="small">'+goal+(foodKnown?'':' · Food amount not yet recorded')+'</div></div>').join('')+'<p class="small">Supplement baseline when checked: 265 mg choline capsule; prenatal 200 mg DHA and 60 mg EPA. Foods need choline_mg, dha_mg, epa_mg or ala_mg in BLOOM FOOD imports to contribute to these totals.</p>';
+ };
+})();
+</script>
+</body></html>
 
 <style id="bloom-extra-completion-style">
 #bloomSchedule .bloom-extra-complete{display:inline-flex;align-items:center;gap:6px;margin-left:9px;font-size:12px;font-weight:600;color:#326b59;cursor:pointer}
