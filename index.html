@@ -1253,9 +1253,10 @@ function update(){
  const tip=missing[0]?.[2]||'Keep enjoying a mix of foods that work for you.';
  card.innerHTML='<div class="bloom-mediterranean-status">'+status+'</div><div class="small">'+count+' of 7 Mediterranean food groups noticed in your log. This is a variety snapshot, not a target you must reach daily.</div><div class="bloom-mediterranean-tags">'+(hits.map(g=>'<span>✓ '+g[0]+'</span>').join('')||'<span>Log meals to see your food variety</span>')+'</div><div class="bloom-mediterranean-tip"><b>One easy next choice:</b> '+tip+'</div><p class="small" style="margin-top:12px">For strength and body composition: prioritize enough food, protein throughout the day, and regular strength work. Daily weight or macro limits do not measure success.</p>';
  const s=sum(),g=state.goals;
- const rows=[['Protein',fmt(s.protein)+' g','Reference '+g.proteinMin+' g'],['Fiber',fmt(s.fiber)+' g','Reference '+g.fiber+' g'],['Fluids',fmt(s.fluid)+' oz','Goal '+g.fluid+' oz'],['Calories',fmt(s.cal)+' kcal','For context'],['Carbs',fmt(s.carbs)+' g','For context'],['Fat',fmt(s.fat)+' g','For context']];
+ const rows=[['Protein',fmt(s.protein)+' g','Reference '+g.proteinMin+' g'],['Fiber',fmt(s.fiber)+' g','Reference '+g.fiber+' g'],['Fluids',fmt(s.fluid)+' oz','Goal '+g.fluid+' oz']];
  const el=document.getElementById('metrics');
- if(el){el.className='bloom-grid';el.innerHTML='<div class="small">Nutrient</div><div class="small">Logged</div><div class="small" style="text-align:right">How to use it</div>'+rows.map(x=>'<div><b>'+x[0]+'</b></div><div class="val">'+x[1]+'</div><div class="small" style="text-align:right">'+x[2]+'</div>').join('')}
+ if(el){el.className='bloom-grid';el.innerHTML='<div class="small">Nutrient</div><div class="small">Logged</div><div class="small" style="text-align:right">Guide</div>'+rows.map(x=>'<div><b>'+x[0]+'</b></div><div class="val">'+x[1]+'</div><div class="small" style="text-align:right">'+x[2]+'</div>').join('')+'<details class="bloom-nutrition-details" style="grid-column:1/-1;margin-top:12px"><summary>Nutrition details · calories, carbs & fat</summary><div class="bloom-nutrition-detail-grid"><span>Calories</span><b>'+fmt(s.cal)+' kcal</b><span>Carbs</span><b>'+fmt(s.carbs)+' g</b><span>Fat</span><b>'+fmt(s.fat)+' g</b></div><p class="small">These are estimates for context, not daily limits. Eating enough matters for strength and pregnancy preparation.</p></details>'}
+
 }
 const previous=render;render=function(){previous();update()};update();
 })();
@@ -1282,3 +1283,5 @@ function update(){
 const prev=render;render=function(){prev();update()};update();
 })();
 </script>
+
+<style id="bloom-nutrition-details-style">.bloom-nutrition-details summary{cursor:pointer;font-size:13px;color:#506c5c}.bloom-nutrition-detail-grid{display:grid;grid-template-columns:1fr auto;gap:8px 18px;padding:12px 0;font-size:13px}.bloom-nutrition-detail-grid b{text-align:right}</style>
