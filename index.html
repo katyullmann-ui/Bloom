@@ -1479,3 +1479,86 @@ if(seafood&&fertility){
 }
 })();
 </script>
+
+<style id="bloom-food-goals-css">
+#bloomMediterraneanCard{padding:18px}
+#bloomMediterraneanCard>h3,#bloomMediterraneanCard>p{display:none}
+.bfg-title{font-size:21px;font-weight:750;margin-bottom:5px}.bfg-sub{font-size:12px;color:#788980;margin-bottom:16px}
+.bfg-label{display:flex;justify-content:space-between;gap:10px;font-size:13px;margin:13px 0 5px}
+.bfg-track{height:8px;background:#edf0eb;border-radius:20px;overflow:hidden}.bfg-fill{height:100%;background:#77a48c;border-radius:20px}
+.bfg-section{font-size:12px;letter-spacing:.08em;font-weight:750;color:#7a8b81;margin:17px 0 5px}
+.bfg-tip{background:#eef6f0;border-radius:13px;padding:13px;margin-top:17px;font-size:13px}
+.bfg-detail{margin-top:14px;border-top:1px solid #e8ebe6;padding-top:12px}
+.bfg-detail summary{cursor:pointer;font-weight:700;font-size:13px}
+.bfg-editrow{display:grid;grid-template-columns:1fr 78px;gap:8px;align-items:center;margin:10px 0;font-size:12px}
+.bfg-editrow input{width:100%;border:1px solid #d7e0d8;border-radius:8px;padding:7px;font-size:14px}
+</style>
+<script id="bloom-food-goals-v1">
+(function(){
+const root=document.getElementById('bloomMediterraneanCard');if(!root)return;
+const keys=['veg','fruit','grains','beans','nuts','seafood'];
+const config={veg:['🥦 Vegetables',2.5,'cups'],fruit:['🍎 Fruit',2,'cups'],grains:['🌾 Whole grains',3,'servings'],beans:['🫘 Beans & lentils',4,'servings'],nuts:['🥜 Nuts & seeds',7,'oz'],seafood:['🐟 Seafood',12,'oz']};
+const patterns={
+ veg:/broccoli|spinach|kale|lettuce|salad|carrot|brussels|asparagus|zucchini|cauliflower|cucumber|pepper|tomato|cabbage|bok choy|vegetable|veggies|green beans|mushroom/i,
+ fruit:/apple|banana|berries|blueberr|strawberr|raspberr|orange|peach|pear|melon|grape|kiwi|mango|pineapple|avocado|fruit/i,
+ grains:/oatmeal|\boats\b|quinoa|brown rice|whole wheat|whole grain|wholegrain|barley|farro|bulgur|wholemeal/i,
+ beans:/beans|lentils|chickpeas|hummus|edamame|black bean|kidney bean|pinto|tofu/i,
+ nuts:/almond|walnut|pistachio|cashew|pecan|chia|flax|pumpkin seed|sunflower seed|peanut butter|almond butter|\bnuts\b/i,
+ seafood:/salmon|sardine|trout|shrimp|prawn|tuna|cod|tilapia|anchov|pollock|seafood|\bfish\b/i
+};
+function estimate(item){
+ const name=String(item.name||'');const out={veg:0,fruit:0,grains:0,beans:0,nuts:0,seafood:0};
+ for(const k of keys){
+  if(!patterns[k].test(name))continue;
+  let v={veg:.5,fruit:.5,grains:1,beans:1,nuts:.5,seafood:3}[k];
+  const units=k==='seafood'?/(\d+(?:\.\d+)?)\s*(?:oz|ounces?)\b/i:k==='nuts'?/(\d+(?:\.\d+)?)\s*(?:oz|ounces?)\b/i:/(\d+(?:\.\d+)?)\s*(?:cups?|c\b)/i;
+  const match=name.match(units);if(match)v=Number(match[1]);
+  if(k==='seafood'&&Number(item.seafoodOz)>0)v=Number(item.seafoodOz);
+  if(k==='nuts'&&/\b(?:tbsp|tablespoon)/i.test(name))v=.5;
+  out[k]=v;
+ }
+ return out;
+}
+function totals(date){
+ const list=state.days?.[date]?.items||[];
+ const t=Object.fromEntries(keys.map(k=>[k,0]));
+ list.forEach(item=>{const guess=estimate(item);keys.forEach(k=>{const n=item.foodGroups?.[k];t[k]+=Number.isFinite(Number(n))&&n!==undefined?Math.max(0,Number(n)):guess[k]})});
+ return t;
+}
+function dateKeyOffset(date,offset){const d=new Date(date+'T12:00:00');d.setDate(d.getDate()+offset);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function bar(k,v,max){const [label,,unit]=config[k];return '<div class="bfg-label"><b>'+label+'</b><span>'+Math.round(v*10)/10+' / '+max+' '+unit+'</span></div><div class="bfg-track"><div class="bfg-fill" style="width:'+Math.min(100,100*v/max)+'%"></div></div>'}
+function update(){
+ const date=dayKey(),today=totals(date),dayOfWeek=new Date(date+'T12:00:00').getDay(),week=Object.fromEntries(keys.map(k=>[k,0]));
+ for(let i=0;i<7;i++){const t=totals(dateKeyOffset(date,i-dayOfWeek));keys.forEach(k=>week[k]+=t[k])}
+ const days=Object.keys(state.days||{}).filter(k=>{const diff=(new Date(date+'T12:00:00')-new Date(k+'T12:00:00'))/86400000;return diff>=0&&diff<7&&state.days[k]?.items?.length});
+ const avg=days.length?days.reduce((a,k)=>a+totals(k).veg,0)/days.length:0;
+ let suggestion='';
+ if(!(state.days?.[date]?.items||[]).length)suggestion='Log your first meal to see your estimated food-group progress.';
+ else if(today.veg<2.5)suggestion='Vegetables are below today’s target. Adding a side of vegetables could help.';
+ else if(today.fruit<2)suggestion='Fruit is below today’s target. A piece of fruit could be an easy addition.';
+ else if(today.grains<3)suggestion='Consider a whole-grain option with your next meal.';
+ else if(week.beans<4)suggestion='Beans or lentils would help build variety this week.';
+ else suggestion='You’re building a good mix of foods. Keep following your appetite and variety.';
+ root.innerHTML='<div class="bfg-title">🌿 Your food goals</div><div class="bfg-sub">Estimated from meals you log. These are flexible guides, not daily grades.</div><div class="bfg-section">TODAY</div>'+['veg','fruit','grains'].map(k=>bar(k,today[k],config[k][1])).join('')+'<div class="bfg-section">THIS WEEK · SUNDAY–SATURDAY</div>'+['beans','nuts','seafood'].map(k=>bar(k,week[k],config[k][1])).join('')+'<p class="small" style="margin-top:12px">Vegetables: '+(Math.round(avg*10)/10)+' cups per logged day over the past 7 days ('+days.length+' days with food logged).</p><div class="bfg-tip"><b>One helpful next choice</b><div>'+suggestion+'</div></div><details class="bfg-detail" id="bfgEdit"><summary>Review or correct serving estimates</summary><p class="small">Meal names do not always show portions. Adjust estimates below when needed. Zero means none of that food group.</p><div id="bfgEditor"></div></details>';
+ root.querySelector('details').addEventListener('toggle',function(){if(this.open)editor()});
+}
+function editor(){
+ const date=dayKey(),items=state.days?.[date]?.items||[],target=document.getElementById('bfgEditor');if(!target)return;
+ if(!items.length){target.textContent='No foods logged for this date.';return}
+ target.replaceChildren();
+ items.forEach((item,i)=>{
+  const box=document.createElement('div');box.style.cssText='border-top:1px solid #eee;padding:12px 0';
+  const name=document.createElement('b');name.textContent=item.name||'Food';box.appendChild(name);
+  const est=estimate(item);
+  keys.forEach(k=>{
+   const row=document.createElement('label');row.className='bfg-editrow';
+   const label=document.createElement('span');label.textContent=config[k][0]+' ('+config[k][2]+')';
+   const input=document.createElement('input');input.type='number';input.min='0';input.step='0.25';input.value=item.foodGroups?.[k]??est[k];
+   input.addEventListener('change',()=>{const v=Number(input.value);if(!Number.isFinite(v)||v<0)return;item.foodGroups??={};item.foodGroups[k]=v;save();update();const detail=root.querySelector('details');detail.open=true;editor()});
+   row.append(label,input);box.appendChild(row);
+  });target.appendChild(box);
+ });
+}
+const prior=render;render=function(){prior();update()};update();
+})();
+</script>
