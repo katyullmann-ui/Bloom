@@ -1285,3 +1285,63 @@ const prev=render;render=function(){prev();update()};update();
 </script>
 
 <style id="bloom-nutrition-details-style">.bloom-nutrition-details summary{cursor:pointer;font-size:13px;color:#506c5c}.bloom-nutrition-detail-grid{display:grid;grid-template-columns:1fr auto;gap:8px 18px;padding:12px 0;font-size:13px}.bloom-nutrition-detail-grid b{text-align:right}</style>
+
+<style id="bloom-home-flow-css">
+#bloomTodayOverview{background:linear-gradient(140deg,#e6f2e9,#fffaf5);border-color:#d5e7d9;padding:20px}
+#bloomTodayOverview h3{margin:0 0 5px;font-size:20px}
+.bloom-overview-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:14px 0}
+.bloom-overview-stat{background:#fff;border-radius:12px;padding:10px 7px;text-align:center}
+.bloom-overview-stat b{display:block;font-size:17px;color:#285b4b}
+.bloom-overview-stat span{font-size:11px;color:#687a70}
+.bloom-home-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:12px 0 2px}
+.bloom-home-actions button{border:1px solid #dce7dd;background:white;color:#285b4b;border-radius:13px;padding:13px 7px;font-weight:700;font-size:14px}
+#bloomHomeMovement .movement-goal{margin:10px 0}
+#bloomHomeMovement .movement-goal-top{display:flex;justify-content:space-between;gap:10px;font-size:13px}
+#bloomHomeMovement .movement-track{height:7px;background:#e5ece7;border-radius:12px;overflow:hidden;margin-top:6px}
+#bloomHomeMovement .movement-track div{height:100%;background:#4f8a6b}
+#bloomExtraDetails{margin:10px 0 22px;background:#fff;border:1px solid var(--line);border-radius:17px;padding:12px}
+#bloomExtraDetails>summary{font-weight:750;cursor:pointer;padding:4px}
+#bloomExtraDetails>.card{margin-top:12px}
+#homeChat{scroll-margin-top:15px}
+#bloomHomeMovementCard h3{margin-top:0}
+</style>
+<script id="bloom-home-flow-v1">
+(function(){
+const home=document.getElementById('home');if(!home||document.getElementById('bloomTodayOverview'))return;
+const heading=home.querySelector('.home-heading');
+const overview=document.createElement('div');overview.className='card';overview.id='bloomTodayOverview';
+overview.innerHTML='<h3>Today at a glance 🌿</h3><p class="small">Your progress, without pressure. A partial day is still a good day.</p><div class="bloom-overview-stats"><div class="bloom-overview-stat"><b id="bloomDashProtein">—</b><span>Protein</span></div><div class="bloom-overview-stat"><b id="bloomDashFiber">—</b><span>Fiber</span></div><div class="bloom-overview-stat"><b id="bloomDashFluid">—</b><span>Fluids</span></div></div><div class="bloom-home-actions"><button type="button" onclick="bloomHomeJump(\'homeChat\')">🍓 Paste food</button><button type="button" onclick="bloomHomeWater()">💧 Add 8 oz</button><button type="button" onclick="tab(\'workouts\')">♧ Log workout</button><button type="button" onclick="bloomHomeJump(\'homeSupplements\')">✓ Supplements</button></div>';
+heading.after(overview);
+const mediterranean=document.getElementById('bloomMediterraneanCard');
+const nourishment=document.getElementById('metrics')?.closest('.card');
+const chat=document.getElementById('homeChat');
+const supplements=document.getElementById('homeSupplements');
+const quick=document.getElementById('quickFood');
+const seafood=document.getElementById('bloomSeafoodGoal');
+const fertility=document.getElementById('bloomFertilityNutrients');
+const keyNutrients=document.getElementById('homeNutrients')?.closest('.card');
+const steps=home.querySelector('.home-steps');
+const water=home.querySelector('.home-two');
+const weight=document.getElementById('bloomWeightCard');
+const movement=document.createElement('div');movement.id='bloomHomeMovementCard';movement.className='card';movement.innerHTML='<div class="row"><h3>Weekly movement</h3><button class="btn secondary small" onclick="tab(\'workouts\')">View workouts →</button></div><div id="bloomHomeMovement"></div>';
+const more=document.createElement('details');more.id='bloomExtraDetails';more.innerHTML='<summary>More details · steps, water & body trends</summary>';
+const order=[mediterranean,nourishment,chat,supplements,movement,quick,seafood,fertility,keyNutrients];
+let last=overview;for(const node of order){if(node){last.after(node);last=node}}
+last.after(more);for(const node of [water,steps,weight])if(node)more.appendChild(node);
+const oldHeading=chat?.querySelector('h3');if(oldHeading)oldHeading.textContent='🍓 Log food from ChatGPT';
+const hint=chat?.querySelector('p.small');if(hint)hint.textContent='Paste your BLOOM FOOD entry here, then tap ↑ to save it to the selected date.';
+const quickHeading=quick?.querySelector('h3');if(quickHeading)quickHeading.textContent='Recent & saved foods';
+window.bloomHomeJump=function(id){const el=document.getElementById(id);if(el){el.scrollIntoView({behavior:'smooth',block:'start'});if(id==='homeChat')setTimeout(()=>document.getElementById('chatInput')?.focus({preventScroll:true}),250)}};
+window.bloomHomeWater=function(){addWater(8)};
+function refresh(){
+ const s=sum(),g=state.goals;
+ const set=(id,value)=>{const el=document.getElementById(id);if(el)el.textContent=value};
+ set('bloomDashProtein',Math.round(s.protein)+' / '+g.proteinMin+'g');
+ set('bloomDashFiber',Math.round(s.fiber)+' / '+g.fiber+'g');
+ set('bloomDashFluid',Math.round(s.fluid)+' / '+g.fluid+'oz');
+ const source=document.getElementById('bloomWeeklyMovementProgress'),target=document.getElementById('bloomHomeMovement');
+ if(source&&target){target.innerHTML=source.innerHTML;const note=target.querySelector('p.small');if(note)note.remove()}
+}
+const previous=render;render=function(){previous();refresh()};refresh();
+})();
+</script>
