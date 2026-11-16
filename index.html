@@ -172,6 +172,12 @@ function addWater(oz){day().items.push({name:fmt(oz)+' oz water',cal:0,protein:0
   if(obj.calories===undefined||/^(unknown|n\/a|\?|)$/i.test(obj.calories))return {error:'Calories are required. Enter 0 only if known to be zero.'};
   if(obj.protein_g===undefined||/^(unknown|n\/a|\?|)$/i.test(obj.protein_g))return {error:'Protein_g is required. Enter 0 only if known to be zero.'};
   if(obj.fiber_g===undefined||/^(unknown|n\/a|\?|)$/i.test(obj.fiber_g))return {error:'Fiber_g is required. Enter 0 only if known to be zero.'};
+  const foodGroupFields={vegetables_cups:'veg',fruit_cups:'fruit',whole_grains_servings:'grains',beans_servings:'beans',nuts_seeds_oz:'nuts',seafood_group_oz:'seafood'};
+  for(const [field,key] of Object.entries(foodGroupFields)){
+    if(obj[field]===undefined||/^(unknown|n\/a|\?)$/i.test(obj[field]))continue;
+    if(!/^\d+(?:\.\d+)?$/.test(obj[field]))return {error:'Invalid '+field+'. Use a nonnegative number.'};
+    item.foodGroups??={};item.foodGroups[key]=Number(obj[field]);
+  }
   item.source=obj.source||'ChatGPT photo estimate';item.notes=obj.notes||'';if(obj.serving_unit)item.servingUnit=obj.serving_unit;if(obj.serving_amount){let n=Number(obj.serving_amount);if(!Number.isFinite(n)||n<=0)return {error:'Serving_Amount must be positive.'};item.servingAmount=n;}
   return {date:obj.date,item};
 }
@@ -1514,6 +1520,10 @@ function estimate(item){
   const units=k==='seafood'?/(\d+(?:\.\d+)?)\s*(?:oz|ounces?)\b/i:k==='nuts'?/(\d+(?:\.\d+)?)\s*(?:oz|ounces?)\b/i:/(\d+(?:\.\d+)?)\s*(?:cups?|c\b)/i;
   const match=name.match(units);if(match)v=Number(match[1]);
   if(k==='seafood'&&Number(item.seafoodOz)>0)v=Number(item.seafoodOz);
+  if(k==='grains'&&/wasa|rye crispbread|rye cracker/i.test(name)){
+    const n=name.match(/\b(\d+)\s*(?:wasa|light rye|rye)?\s*(?:crackers?|crispbreads?|slices?|pieces?)/i);
+    v=n?Number(n[1])/2:1;
+  }
   if(k==='nuts'&&/\b(?:tbsp|tablespoon)/i.test(name))v=.5;
   out[k]=v;
  }
