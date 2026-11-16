@@ -1310,7 +1310,7 @@ const prev=render;render=function(){prev();update()};update();
 const home=document.getElementById('home');if(!home||document.getElementById('bloomTodayOverview'))return;
 const heading=home.querySelector('.home-heading');
 const overview=document.createElement('div');overview.className='card';overview.id='bloomTodayOverview';
-overview.innerHTML='<h3>Today at a glance 🌿</h3><p class="small">Your progress, without pressure. A partial day is still a good day.</p><div class="bloom-overview-stats"><div class="bloom-overview-stat"><b id="bloomDashProtein">—</b><span>Protein</span></div><div class="bloom-overview-stat"><b id="bloomDashFiber">—</b><span>Fiber</span></div><div class="bloom-overview-stat"><b id="bloomDashFluid">—</b><span>Fluids</span></div></div><div class="bloom-home-actions"><button type="button" onclick="bloomOpenFoodPaste()">🍓 Paste food</button><button type="button" onclick="bloomHomeWater()">💧 Add 8 oz</button><button type="button" onclick="tab(\'workouts\')">♧ Log workout</button><button type="button" onclick="bloomHomeJump(\'homeSupplements\')">✓ Supplements</button></div>';
+overview.innerHTML='<h3>Today at a glance 🌿</h3><p class="small">Your progress, without pressure. A partial day is still a good day.</p><div class="bloom-overview-stats"><div class="bloom-overview-stat"><b id="bloomDashProtein">—</b><span>Protein</span></div><div class="bloom-overview-stat"><b id="bloomDashFiber">—</b><span>Fiber</span></div><div class="bloom-overview-stat"><b id="bloomDashFluid">—</b><span>Fluids</span></div></div><div class="bloom-home-actions"><button type="button" onclick="bloomOpenFoodPaste()">🍓 Paste food</button><button type="button" onclick="bloomHomeWater()">💧 Add 16 oz</button><button type="button" onclick="tab(\'workouts\')">♧ Log workout</button><button type="button" onclick="bloomHomeJump(\'homeSupplements\')">✓ Supplements</button></div>';
 heading.after(overview);
 const mediterranean=document.getElementById('bloomMediterraneanCard');
 const nourishment=document.getElementById('metrics')?.closest('.card');
@@ -1332,7 +1332,7 @@ const oldHeading=chat?.querySelector('h3');if(oldHeading)oldHeading.textContent=
 const hint=chat?.querySelector('p.small');if(hint)hint.textContent='Paste your BLOOM FOOD entry here, then tap ↑ to save it to the selected date.';
 const quickHeading=quick?.querySelector('h3');if(quickHeading)quickHeading.textContent='Recent & saved foods';
 window.bloomHomeJump=function(id){const el=document.getElementById(id);if(el){el.scrollIntoView({behavior:'smooth',block:'start'});if(id==='homeChat')setTimeout(()=>document.getElementById('chatInput')?.focus({preventScroll:true}),250)}};
-window.bloomHomeWater=function(){addWater(8)};
+window.bloomHomeWater=function(){addWater(16)};
 function refresh(){
  const s=sum(),g=state.goals;
  const set=(id,value)=>{const el=document.getElementById(id);if(el)el.textContent=value};
@@ -1374,5 +1374,59 @@ window.bloomSaveFoodPaste=function(){
   if(!message.startsWith('This food is already'))field.value='';
  }catch(err){status.textContent='Could not save this entry. Please check its format and try again.'}
 };
+})();
+</script>
+
+<style id="bloom-workout-refresh-css">
+#workouts .subtitle{margin-bottom:14px}
+#bloomWorkoutQuick{background:linear-gradient(140deg,#e7f2eb,#fff);padding:18px}
+#bloomWorkoutQuick h3{margin:0 0 4px}
+.bloom-workout-quick-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:14px}
+.bloom-workout-quick-grid button{border:1px solid #d4e4d9;background:#fff;border-radius:14px;padding:15px 8px;text-align:left;color:var(--ink);font-weight:700}
+.bloom-workout-quick-grid button span{display:block;color:var(--muted);font-weight:400;font-size:12px;margin-top:3px}
+#bloomWorkoutExtra>summary{cursor:pointer;font-weight:700;padding:12px}
+#bloomWorkoutExtra{background:#fff;border:1px solid var(--line);border-radius:17px;margin:12px 0;padding:0 8px}
+#bloomWorkoutExtra>.card{border:0;margin:0}
+#bloomWorkoutFeedback{font-size:13px;margin-top:10px;color:var(--green)}
+#bloomWaterQuickButtons{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+#bloomWaterQuickButtons button{background:#eef6f1;border:0;border-radius:11px;padding:11px 15px;color:var(--green);font-weight:700}
+</style>
+<script id="bloom-workout-refresh-v1">
+(function(){
+const workouts=document.getElementById('workouts'),weekly=document.getElementById('bloomWeeklyMovementCard');
+if(workouts&&weekly&&!document.getElementById('bloomWorkoutQuick')){
+ const quick=document.createElement('div');quick.className='card';quick.id='bloomWorkoutQuick';
+ quick.innerHTML='<h3>Log your movement</h3><p class="small">Tap an activity to log it for the selected date.</p><div class="bloom-workout-quick-grid"><button type="button" onclick="bloomQuickWorkout(\'lagree\')">🧘 Lagree<span>Class completed</span></button><button type="button" onclick="bloomQuickWorkout(\'japaneseWalk\')">🚶 Interval walk<span>30 minutes</span></button><button type="button" onclick="bloomQuickWorkout(\'homeStrength\')">💪 Strength<span>At home</span></button><button type="button" onclick="bloomQuickWorkout(\'mobility\')">🌿 Mobility<span>Stretch & recovery</span></button></div><div id="bloomWorkoutFeedback" role="status" aria-live="polite"></div>';
+ weekly.before(quick);
+ const form=document.getElementById('customWorkoutType')?.closest('.card');
+ if(form){const more=document.createElement('details');more.id='bloomWorkoutExtra';more.innerHTML='<summary>More options · dates, notes & other workouts</summary>';form.before(more);more.appendChild(form)}
+ const h=weekly.querySelector('h3');if(h)h.textContent='This week';
+ const sub=weekly.querySelector('p.small');if(sub)sub.textContent='Your progress toward your weekly movement goals.';
+ const title=workouts.querySelector('h2');if(title)title.textContent='Your movement';
+ const subtitle=workouts.querySelector('.subtitle');if(subtitle)subtitle.textContent='Quickly log a workout and see how your week is going.';
+ window.bloomQuickWorkout=function(type){
+  const date=document.getElementById('date')?.value||dayKey();
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(date))return;
+  state.customWorkouts??=[];
+  state.customWorkouts.push({id:String(Date.now())+String(Math.random()).slice(2),date,type,note:''});
+  save();render();
+  const labels={lagree:'Lagree',japaneseWalk:'Interval walk',homeStrength:'At-home strength',mobility:'Mobility'};
+  document.getElementById('bloomWorkoutFeedback').textContent='✓ '+labels[type]+' logged for '+date;
+ };
+}
+const overview=document.getElementById('bloomTodayOverview');
+if(overview){
+ const actions=overview.querySelector('.bloom-home-actions');
+ const supplementButton=Array.from(actions?.querySelectorAll('button')||[]).find(b=>b.textContent.includes('Supplements'));
+ if(supplementButton)supplementButton.remove();
+ const waterButton=Array.from(actions?.querySelectorAll('button')||[]).find(b=>b.textContent.includes('Add 16 oz'));
+ if(waterButton)waterButton.textContent='💧 Add 16 oz';
+}
+const supp=document.getElementById('homeSupplements');if(supp)supp.style.display='none';
+const waterButtons=document.createElement('div');waterButtons.id='bloomWaterQuickButtons';
+waterButtons.innerHTML='<button type="button" onclick="addWater(12)">+ 12 oz</button><button type="button" onclick="addWater(16)">+ 16 oz</button>';
+if(overview)overview.appendChild(waterButtons);
+const fluidQuick=document.querySelector('.fluid-quick');
+if(fluidQuick)fluidQuick.innerHTML='<button onclick="addWater(12)">+ 12 oz</button><button onclick="addWater(16)">+ 16 oz</button>';
 })();
 </script>
