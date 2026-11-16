@@ -647,7 +647,7 @@ document.getElementById('bloomWorkoutCancel').addEventListener('click',close);
 document.getElementById('bloomWorkoutSave').addEventListener('click',function(){if(index<0)return;state.bloomSchedule[index]=select.value;save();close();render()});
 modal.addEventListener('click',e=>{if(e.target===modal)close()});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')close()});
-document.addEventListener('click',e=>{const button=e.target.closest?.('#workouts .bloom-pencil');if(!button)return;e.preventDefault();e.stopPropagation();const row=button.closest('.bloom-day');const rows=Array.from(document.querySelectorAll('#bloomSchedule .bloom-day'));const i=rows.indexOf(row);if(i>=0)window.bloomEditSchedule(i)},true);
+document.addEventListener('click',e=>{const button=e.target.closest?.('#workouts .bloom-pencil');if(!button)return;e.preventDefault();e.stopPropagation();const row=button.closest('.bloom-day');const rows=Array.from(document.querySelectorAll('#bloomSchedule .bloom-day'));const i=rows.indexOf(row);if(i>=0)window.bloomEditSchedule([6,0,1,2,3,4,5][i])},true);
 })();
 </script><style id="bloom-step-single-input">
 #home .home-steps>#homeStepInput,#home .home-steps>#homeStepInput+.btn{display:none!important}
