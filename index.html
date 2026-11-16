@@ -1576,3 +1576,29 @@ if(actions){
 document.getElementById('bloomWaterQuickButtons')?.remove();
 })();
 </script>
+
+<style id="bloom-manual-water-css">
+#bloomManualWaterModal{position:fixed;inset:0;z-index:1100;background:rgba(24,47,38,.5);display:none;align-items:flex-end;justify-content:center;padding:12px 12px max(14px,env(safe-area-inset-bottom))}
+#bloomManualWaterModal.open{display:flex}
+#bloomManualWaterSheet{background:white;border-radius:22px;padding:20px;width:min(500px,100%)}
+#bloomManualWaterSheet input{font-size:18px}
+</style>
+<script id="bloom-manual-water-v1">
+(function(){
+const overview=document.getElementById('bloomTodayOverview'),actions=overview?.querySelector('.bloom-home-actions');
+if(!actions)return;
+const button=document.createElement('button');button.type='button';button.textContent='✏️ Enter water';button.addEventListener('click',()=>window.bloomOpenManualWater());actions.appendChild(button);
+const modal=document.createElement('div');modal.id='bloomManualWaterModal';modal.setAttribute('role','dialog');modal.setAttribute('aria-modal','true');modal.setAttribute('aria-label','Enter water');
+modal.innerHTML='<div id="bloomManualWaterSheet"><div class="row"><h3 style="margin:0">Add water</h3><button class="btn secondary small" type="button" id="bloomManualWaterClose">✕ Close</button></div><p class="small">Enter how many ounces you drank. This adds to your total for the selected day.</p><label for="bloomManualWaterAmount">Amount (oz)</label><input class="field" id="bloomManualWaterAmount" type="number" min="0.1" max="200" step="any" inputmode="decimal" placeholder="e.g. 20"><button class="btn" type="button" id="bloomManualWaterSave" style="margin-top:12px">Add to today's total</button><p class="small" id="bloomManualWaterStatus" role="status" aria-live="polite"></p></div>';
+document.body.appendChild(modal);
+window.bloomOpenManualWater=function(){modal.classList.add('open');document.getElementById('bloomManualWaterStatus').textContent='';document.getElementById('bloomManualWaterAmount').focus()};
+window.bloomCloseManualWater=function(){modal.classList.remove('open')};
+document.getElementById('bloomManualWaterClose').addEventListener('click',window.bloomCloseManualWater);
+modal.addEventListener('click',e=>{if(e.target===modal)window.bloomCloseManualWater()});
+document.getElementById('bloomManualWaterSave').addEventListener('click',()=>{
+const input=document.getElementById('bloomManualWaterAmount'),oz=Number(input.value);
+if(!Number.isFinite(oz)||oz<=0||oz>200){document.getElementById('bloomManualWaterStatus').textContent='Enter an amount between 0.1 and 200 oz.';return}
+addWater(oz);input.value='';document.getElementById('bloomManualWaterStatus').textContent='✓ Added '+oz+' oz. Your total is updated.';setTimeout(()=>window.bloomCloseManualWater(),700);
+});
+})();
+</script>
