@@ -79,6 +79,7 @@ h3{font-size:19px;font-weight:700}
 <section class="card home-section" id="quickFood"><h3>🍓 Quick food log</h3><p class="small">Find a food, reuse a recent entry, or save a favorite meal. Review nutrition before adding.</p><input class="field" id="quickFoodSearch" placeholder="Search foods, e.g. egg, beans, salmon" oninput="bloomQuickRender()"><div class="quickfood-tabs"><button type="button" onclick="bloomQuickTab('search')" id="qtab_search">Search</button><button type="button" onclick="bloomQuickTab('recent')" id="qtab_recent">Recent</button><button type="button" onclick="bloomQuickTab('saved')" id="qtab_saved">Saved meals</button></div><div id="quickFoodResults" class="quickfood-results"></div><div id="quickFoodEditor"></div><details style="margin-top:16px"><summary style="font-weight:700;cursor:pointer">✦ Try describing what you ate</summary><p class="quickfood-help">Experimental: recognizes a few common foods and estimates nutrition without sending your text anywhere. It is not AI and may miss ingredients. Review each estimate.</p><textarea class="field" id="quickFoodNatural" rows="2" placeholder="e.g. 2 eggs and 1 cup cooked spaghetti"></textarea><button class="btn small" onclick="bloomEstimateText()">Estimate foods</button><div id="quickFoodEstimate"></div></details><p class="quickfood-help" style="margin-top:12px">Imported BLOOM FOOD entries automatically appear under Saved meals. Optional Serving_Amount and Serving_Unit fields make portions reusable (for example, 0.5 and 1 cup). Nutrition values are estimates. Saved foods and meals stay in this browser with your Bloom data.</p></section><div class="card home-section"><div class="row"><h3>Daily nutrition</h3></div><div class="metrics" id="metrics"></div></div>
 <div class="card bloom-weight-card" id="bloomWeightCard"><div class="row"><div><div class="small">⚖ Weight</div><div class="number" id="bloomWeightLatest">No weight logged</div><div class="bloom-weight-note" id="bloomWeightDate"></div></div></div><div class="bloom-weight-actions"><input id="bloomWeightInput" class="field" type="number" min="1" max="1400" step="0.1" inputmode="decimal" placeholder="Weight (lb)" aria-label="Weight in pounds"><button class="btn small" onclick="bloomSaveWeight()">Save weight</button><button class="btn secondary small" onclick="bloomDeleteWeight()">Delete date</button></div><div class="bloom-weight-note">Logs weight for the date selected above.</div><div id="bloomWeightGraph" style="margin-top:12px"></div></div>
 <div id="homeFoodLog" style="display:none"></div>
+<div class="card home-section" id="bloomSeafoodGoal"><h3>🐟 Seafood · weekly goal</h3><p class="small">Aim for 12 oz per week of lower-mercury seafood, such as salmon, sardines, trout, or shrimp. Track portions here separately from food calories.</p><div id="bloomSeafoodProgress"></div><label for="bloomSeafoodOz">Seafood eaten on selected date (oz)</label><input class="field" id="bloomSeafoodOz" type="number" min="0" step="0.5" inputmode="decimal" placeholder="e.g. 4"><div class="actions"><button class="btn small" type="button" onclick="bloomSaveSeafood()">Save seafood amount</button></div><p class="small" id="bloomSeafoodSaved" aria-live="polite"></p></div>
 <div class="card home-section" id="bloomFertilityNutrients"><h3>🌿 Mediterranean diet · TTC nutrition</h3><p class="small">Daily choline goal: 450 mg, including food and supplements. Track DHA, EPA and plant omega-3 (ALA) separately. Check off supplements on Home to include them; unknown food nutrients are not zero.</p><div id="bloomFertilityTotals"></div></div>
 <div class="card home-section"><div class="row"><h3>Key nutrients</h3></div><div class="key-nutrients" id="homeNutrients"></div><p class="small">Still tracking means some food nutrients are unknown, not that you are deficient.</p><details><summary class="text-link">Food vs supplements details</summary><div id="nutrientsHome"></div></details></div>
 
@@ -1187,3 +1188,27 @@ if(search){search.addEventListener('input',window.bloomRefList);window.bloomRefL
 <style id="bloom-step-remaining-style">#bloomIndependentDayRemaining{font-weight:650;color:#326b59;margin-top:14px}#bloomIndependentWeek{margin-top:12px!important;line-height:1.5}</style>
 <script id="bloom-step-remaining-v5">(function(){const card=document.getElementById('bloomStepsIndependent');if(!card)return;const weekly=card.querySelector('#bloomIndependentWeek');if(!weekly)return;const daily=document.createElement('div');daily.id='bloomIndependentDayRemaining';daily.className='small';weekly.insertAdjacentElement('beforebegin',daily);render()})();</script>
 
+
+<script id="bloom-seafood-goal">
+(function(){
+ const card=document.getElementById('bloomSeafoodGoal'),input=document.getElementById('bloomSeafoodOz'),progress=document.getElementById('bloomSeafoodProgress'),saved=document.getElementById('bloomSeafoodSaved');
+ if(!card||!input||!progress)return;
+ let shownDate='';
+ function dateString(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+ function sync(){
+  const date=dayKey();if(!date)return;
+  if(shownDate!==date){shownDate=date;input.value=state.days[date]?.seafoodOz??'';saved.textContent=''}
+  const selected=new Date(date+'T12:00:00'),start=new Date(selected);start.setDate(selected.getDate()-selected.getDay());
+  let total=0;for(let i=0;i<7;i++){const d=new Date(start);d.setDate(start.getDate()+i);total+=Number(state.days[dateString(d)]?.seafoodOz||0)}
+  const left=Math.max(0,12-total);
+  progress.innerHTML='<div class="number">'+fmt(total)+' / 12 oz</div><div class="bar"><div class="fill" style="width:'+Math.min(100,total/12*100)+'%"></div></div><div class="small">'+(left===0?'Weekly seafood goal reached!':fmt(left)+' oz remaining this week')+' · Sunday–Saturday</div>';
+ }
+ window.bloomSaveSeafood=function(){
+  const raw=input.value.trim(),value=Number(raw);
+  if(raw===''||!Number.isFinite(value)||value<0||value>100){saved.textContent='Enter an amount from 0 to 100 oz';return}
+  day().seafoodOz=value;save();saved.textContent='Saved '+fmt(value)+' oz for '+dayKey();sync();
+ };
+ const previous=render;render=function(){previous();sync()};
+ sync();
+})();
+</script>
