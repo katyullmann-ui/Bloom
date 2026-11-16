@@ -1345,3 +1345,34 @@ function refresh(){
 const previous=render;render=function(){previous();refresh()};refresh();
 })();
 </script>
+
+<style id="bloom-food-paste-modal-css">
+#bloomFoodPasteModal{position:fixed;inset:0;z-index:999;background:rgba(22,45,35,.48);display:none;align-items:flex-end;justify-content:center;padding:12px 12px max(15px,env(safe-area-inset-bottom))}
+#bloomFoodPasteModal.open{display:flex}
+#bloomFoodPasteSheet{background:#fff;width:min(520px,100%);border-radius:22px;padding:20px;max-height:85dvh;overflow:auto;box-shadow:0 16px 50px #1a322a33}
+#bloomFoodPasteSheet textarea{min-height:160px;font-size:16px;resize:vertical}
+#bloomFoodPasteResult{margin-top:10px;font-size:13px}
+</style>
+<script id="bloom-food-paste-modal-v1">
+(function(){
+const modal=document.createElement('div');modal.id='bloomFoodPasteModal';modal.setAttribute('role','dialog');modal.setAttribute('aria-modal','true');modal.setAttribute('aria-label','Paste food');
+modal.innerHTML='<div id="bloomFoodPasteSheet"><div class="row"><h3 style="margin:0">🍓 Add food to Bloom</h3><button class="btn secondary small" type="button" onclick="bloomCloseFoodPaste()">✕ Close</button></div><p class="small">Copy a BLOOM FOOD entry from ChatGPT and paste it here. Include the date.</p><textarea class="field" id="bloomFoodPasteText" placeholder="BLOOM FOOD&#10;date: 2026-11-15&#10;name: ...&#10;calories: ...&#10;protein_g: ...&#10;fiber_g: ..."></textarea><button class="btn" type="button" id="bloomFoodPasteSave" onclick="bloomSaveFoodPaste()">Save food</button><div id="bloomFoodPasteResult" role="status" aria-live="polite"></div></div>';
+document.body.appendChild(modal);
+modal.addEventListener('click',e=>{if(e.target===modal)window.bloomCloseFoodPaste()});
+window.bloomOpenFoodPaste=function(){modal.classList.add('open');document.getElementById('bloomFoodPasteResult').textContent='';document.getElementById('bloomFoodPasteText').focus()};
+window.bloomCloseFoodPaste=function(){modal.classList.remove('open')};
+window.bloomSaveFoodPaste=function(){
+ const field=document.getElementById('bloomFoodPasteText'),status=document.getElementById('bloomFoodPasteResult');
+ const value=field.value.trim();if(!value){status.textContent='Paste a BLOOM FOOD entry first.';return}
+ try{
+  const parsed=parseBloomFood(value);
+  if(!parsed){status.textContent='Entry not recognized. Start with BLOOM FOOD and include date, name, calories, protein_g, and fiber_g.';return}
+  if(parsed.error){status.textContent=parsed.error;return}
+  const message=confirmBloomFood(parsed);
+  save();render();
+  status.textContent=message;
+  if(!message.startsWith('This food is already'))field.value='';
+ }catch(err){status.textContent='Could not save this entry. Please check its format and try again.'}
+};
+})();
+</script>
