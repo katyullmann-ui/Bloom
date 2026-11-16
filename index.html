@@ -1352,7 +1352,7 @@ window.bloomHomeWater=function(){addWater(16)};
 function refresh(){
  const s=sum(),g=state.goals;
  const set=(id,value)=>{const el=document.getElementById(id);if(el)el.textContent=value};
- set('bloomDashProtein',Math.round(s.protein)+'g');const proteinCaption=document.getElementById('bloomDashProtein')?.nextElementSibling;if(proteinCaption)proteinCaption.textContent='Protein · 70g minimum / 95g ideal';
+ set('bloomDashProtein',Math.round(s.protein)+'g');const proteinCaption=document.getElementById('bloomDashProtein')?.nextElementSibling;if(proteinCaption)proteinCaption.textContent='Protein';
  set('bloomDashFiber',Math.round(s.fiber)+' / '+g.fiber+'g');
  set('bloomDashFluid',Math.round(s.fluid)+' / '+g.fluid+'oz');
  const source=document.getElementById('bloomWeeklyMovementProgress'),target=document.getElementById('bloomHomeMovement');
