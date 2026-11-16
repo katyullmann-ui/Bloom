@@ -1430,3 +1430,52 @@ const fluidQuick=document.querySelector('.fluid-quick');
 if(fluidQuick)fluidQuick.innerHTML='<button onclick="addWater(12)">+ 12 oz</button><button onclick="addWater(16)">+ 16 oz</button>';
 })();
 </script>
+
+<style id="bloom-clarity-v1-css">
+#bloomSchedule{display:none!important}
+#workouts .card:has(#bloomSchedule){display:none!important}
+#bloomWorkoutLogModal{position:fixed;inset:0;z-index:1000;background:#203f3970;display:none;align-items:flex-end;justify-content:center;padding:12px 12px max(14px,env(safe-area-inset-bottom))}
+#bloomWorkoutLogModal.open{display:flex}
+#bloomWorkoutLogSheet{background:white;width:min(520px,100%);border-radius:22px;padding:20px;max-height:82dvh;overflow:auto}
+.bloom-workout-choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:14px 0}
+.bloom-workout-choices button{background:#f2f7f3;border:1px solid #d7e5dc;border-radius:14px;padding:17px 8px;font-weight:700;color:#285b4b}
+#bloomMediterraneanCard>p.small{display:none}
+#bloomMediterraneanCard .bloom-mediterranean-status{font-size:20px}
+#bloomSeafoodGoal>p.small,#bloomFertilityNutrients>p.small{display:none}
+#bloomSeafoodGoal label,#bloomSeafoodOz,#bloomSeafoodGoal .actions,#bloomSeafoodSaved{display:none}
+#bloomHomeNutrientDetails>summary{font-weight:700;cursor:pointer;padding:10px 0}
+#bloomHomeNutrientDetails .card{margin:10px 0}
+</style>
+<script id="bloom-clarity-v1">
+(function(){
+const modal=document.createElement('div');modal.id='bloomWorkoutLogModal';modal.setAttribute('role','dialog');modal.setAttribute('aria-modal','true');
+modal.innerHTML='<div id="bloomWorkoutLogSheet"><div class="row"><h3 style="margin:0">Log a workout</h3><button class="btn secondary small" onclick="bloomCloseWorkoutLog()">✕ Close</button></div><p class="small">Choose what you completed. It will count toward your weekly goals.</p><div class="bloom-workout-choices"><button onclick="bloomLogWorkoutNow(\'lagree\')">🧘 Lagree</button><button onclick="bloomLogWorkoutNow(\'japaneseWalk\')">🚶 Interval walk</button><button onclick="bloomLogWorkoutNow(\'homeStrength\')">💪 Strength</button><button onclick="bloomLogWorkoutNow(\'mobility\')">🌿 Mobility</button></div><p class="small" id="bloomWorkoutLogStatus" aria-live="polite"></p><button class="btn secondary small" onclick="bloomCloseWorkoutLog();tab(\'workouts\')">See weekly progress →</button></div>';
+document.body.appendChild(modal);
+modal.addEventListener('click',e=>{if(e.target===modal)window.bloomCloseWorkoutLog()});
+window.bloomOpenWorkoutLog=function(){document.getElementById('bloomWorkoutLogStatus').textContent='';modal.classList.add('open')};
+window.bloomCloseWorkoutLog=function(){modal.classList.remove('open')};
+window.bloomLogWorkoutNow=function(type){
+ try{
+ const date=document.getElementById('date')?.value||dayKey();
+ state.customWorkouts??=[];
+ state.customWorkouts.push({id:String(Date.now())+String(Math.random()).slice(2),date,type,note:''});
+ save();render();
+ const label={lagree:'Lagree',japaneseWalk:'Interval walk',homeStrength:'Strength',mobility:'Mobility'}[type];
+ document.getElementById('bloomWorkoutLogStatus').textContent='✓ '+label+' saved for '+date;
+ }catch(e){document.getElementById('bloomWorkoutLogStatus').textContent='Unable to save. Please try again.'}
+};
+const overview=document.getElementById('bloomTodayOverview');
+if(overview){const btn=Array.from(overview.querySelectorAll('button')).find(x=>x.textContent.includes('Log workout'));if(btn)btn.setAttribute('onclick','bloomOpenWorkoutLog()')}
+const workoutQuick=document.getElementById('bloomWorkoutQuick');
+if(workoutQuick){const heading=workoutQuick.querySelector('h3');if(heading)heading.textContent='Quick log';}
+const med=document.getElementById('bloomMediterraneanCard');
+if(med){const heading=med.querySelector('h3');if(heading)heading.textContent='🌿 Food variety';const desc=med.querySelector('p.small');if(desc)desc.textContent='Based on foods you have logged today. No entry yet? Start with a meal.'}
+const seafood=document.getElementById('bloomSeafoodGoal'),fertility=document.getElementById('bloomFertilityNutrients'),nutrients=document.getElementById('homeNutrients')?.closest('.card');
+if(seafood&&fertility){
+ const details=document.createElement('details');details.id='bloomHomeNutrientDetails';details.className='card';details.innerHTML='<summary>Nutrition extras · seafood & TTC nutrients</summary><p class="small">Optional details from foods you log. Missing values may simply be unknown.</p>';
+ seafood.before(details);details.append(seafood,fertility);if(nutrients)details.appendChild(nutrients);
+ const title=seafood.querySelector('h3');if(title)title.textContent='🐟 Seafood this week';
+ const ft=fertility.querySelector('h3');if(ft)ft.textContent='TTC nutrient estimates';
+}
+})();
+</script>
