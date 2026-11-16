@@ -1602,3 +1602,65 @@ addWater(oz);input.value='';document.getElementById('bloomManualWaterStatus').te
 });
 })();
 </script>
+
+<style id="bloom-workout-planner-css">
+#workouts>#bloomWorkoutQuick,#workouts>#bloomWeeklyMovementCard,#workouts>#bloomWorkoutExtra,#workouts>.card:has(#bloomSchedule){display:none!important}
+#bloomWorkoutPlanner{margin-top:18px}
+.bwp-card{background:#fff;border-radius:20px;padding:20px;margin-bottom:14px}
+.bwp-row{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:12px 0}
+.bwp-entry{border:1px solid #e0e9e2;border-radius:14px;padding:13px;margin:10px 0}
+.bwp-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.bwp-actions button{border:1px solid #d5e5da;background:#eef6f1;border-radius:10px;padding:10px;font-weight:650;color:#285b4b}
+.bwp-actions button.bwp-done{background:#306c55;color:white}
+.bwp-form{display:grid;gap:10px}
+.bwp-form select,.bwp-form input{width:100%;border:1px solid #d9e5dd;border-radius:12px;padding:12px;background:white;font-size:16px}
+.bwp-progress{height:8px;border-radius:10px;background:#e8eee9;overflow:hidden;margin-top:5px}
+.bwp-progress>div{height:100%;background:#69a083}
+</style>
+<script id="bloom-workout-planner-v1">
+(function(){
+const panel=document.getElementById('workouts');if(!panel)return;
+const root=document.createElement('div');root.id='bloomWorkoutPlanner';panel.prepend(root);
+const types={lagree:'Lagree',japaneseWalk:'Japanese interval walk',homeStrength:'At-home strength',mobility:'Mobility',upper:'Upper body',lower:'Lower body / glutes',other:'Other workout'};
+const goals={lagree:4,japaneseWalk:5,homeStrength:1};
+const escText=s=>String(s||'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+function all(){return state.customWorkouts||(state.customWorkouts=[])}
+function selected(){return dayKey()}
+function dateOffset(key,offset){const d=new Date(key+'T12:00:00');d.setDate(d.getDate()+offset);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function weekItems(){const date=selected(),dow=new Date(date+'T12:00:00').getDay(),start=dateOffset(date,-dow),end=dateOffset(start,6);return all().filter(w=>w.date>=start&&w.date<=end&&w.completed!==false)}
+function paint(){
+const date=selected(),items=all().filter(w=>w.date===date),week=weekItems();
+const label=new Date(date+'T12:00:00').toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric'});
+root.innerHTML='<div class="bwp-card"><h2 style="margin:0 0 5px">Your workouts</h2><p class="small">Plan your movement, check it off when finished, or add another activity.</p><h3>'+label+'</h3><div id="bwpEntries"></div><div class="bwp-form"><label for="bwpType">Add a workout for this day</label><select id="bwpType">'+Object.entries(types).map(([k,v])=>'<option value="'+k+'">'+v+'</option>').join('')+'</select><input id="bwpNote" placeholder="Notes (optional)"><button class="btn" id="bwpAdd">+ Schedule workout</button></div></div><div class="bwp-card"><h3 style="margin:0 0 5px">This week</h3><p class="small">Only completed workouts count toward your goals.</p><div id="bwpProgress"></div></div>';
+const entries=root.querySelector('#bwpEntries');
+if(!items.length)entries.innerHTML='<p class="small">Nothing scheduled yet. Add your first workout below.</p>';
+items.forEach(w=>{
+ const div=document.createElement('div');div.className='bwp-entry';
+ const done=w.completed!==false;
+ div.innerHTML='<div class="bwp-row"><div><b>'+escText(types[w.type]||w.type)+'</b><div class="small">'+escText(w.note||'')+'</div></div><span>'+(done?'✓ Done':'Planned')+'</span></div><div class="bwp-actions"><button class="'+(done?'bwp-done':'')+'">'+(done?'✓ Completed':'○ Mark complete')+'</button><button>Remove</button></div>';
+ const buttons=div.querySelectorAll('button');
+ buttons[0].onclick=()=>{w.completed=!done;save();render()};
+ buttons[1].onclick=()=>{state.customWorkouts=all().filter(x=>x!==w);save();render()};
+ entries.appendChild(div);
+});
+root.querySelector('#bwpAdd').onclick=()=>{
+ const type=root.querySelector('#bwpType').value,note=root.querySelector('#bwpNote').value.trim();
+ all().push({id:String(Date.now())+String(Math.random()).slice(2),date,type,note,completed:false});
+ save();render();
+};
+const progress=root.querySelector('#bwpProgress');
+Object.entries(goals).forEach(([k,goal])=>{
+ const count=week.filter(w=>w.type===k).length;
+ const line=document.createElement('div');line.style.margin='15px 0';
+ line.innerHTML='<div class="bwp-row"><span>'+escText(types[k])+'</span><b>'+count+' / '+goal+'</b></div><div class="bwp-progress"><div style="width:'+Math.min(100,count/goal*100)+'%"></div></div>';
+ progress.appendChild(line);
+});
+const home=document.getElementById('bloomHomeMovement');
+if(home){home.innerHTML=progress.innerHTML}
+}
+const old=render;render=function(){old();paint()};paint();
+const home=document.getElementById('bloomTodayOverview');
+const btn=Array.from(home?.querySelectorAll('button')||[]).find(x=>x.textContent.includes('Log workout'));
+if(btn)btn.setAttribute('onclick',"tab('workouts')");
+})();
+</script>
