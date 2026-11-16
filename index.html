@@ -1562,3 +1562,17 @@ function editor(){
 const prior=render;render=function(){prior();update()};update();
 })();
 </script>
+
+<script id="bloom-water-buttons-cleanup">
+(function(){
+const overview=document.getElementById('bloomTodayOverview');if(!overview)return;
+const actions=overview.querySelector('.bloom-home-actions');
+if(actions){
+ const water=Array.from(actions.querySelectorAll('button')).find(b=>b.textContent.includes('Add 16 oz'));
+ if(water){water.textContent='💧 Add 16 oz';water.setAttribute('onclick','addWater(16)')}
+ const strength=Array.from(actions.querySelectorAll('button')).find(b=>b.textContent.includes('Log workout'));
+ if(strength){const twelve=document.createElement('button');twelve.type='button';twelve.textContent='💧 Add 12 oz';twelve.setAttribute('onclick','addWater(12)');water?.after(twelve)}
+}
+document.getElementById('bloomWaterQuickButtons')?.remove();
+})();
+</script>
