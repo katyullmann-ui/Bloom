@@ -1509,7 +1509,7 @@ if(seafood&&fertility){
 .bfg-editrow{display:grid;grid-template-columns:1fr 78px;gap:8px;align-items:center;margin:10px 0;font-size:12px}
 .bfg-editrow input{width:100%;border:1px solid #d7e0d8;border-radius:8px;padding:7px;font-size:14px}
 </style>
-<script id="bloom-food-goals-v1">
+<style id="bloom-weekly-nutrition-css">.bfg-weekly{background:#f3f8f4;border-radius:16px;padding:16px;margin-top:24px}.bfg-average-row{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:9px 0;border-bottom:1px solid #dde8e0;font-size:14px}.bfg-average-row b{text-align:right;white-space:nowrap}.bfg-average-goal{font-weight:400;color:#70857a}</style><script id="bloom-food-goals-v1">
 (function(){
 const root=document.getElementById('bloomMediterraneanCard');if(!root)return;
 const keys=['veg','fruit','grains','beans','nuts','seafood'];
@@ -1552,6 +1552,21 @@ function update(){
  for(let i=0;i<7;i++){const t=totals(dateKeyOffset(date,i-dayOfWeek));keys.forEach(k=>week[k]+=t[k])}
  const days=Object.keys(state.days||{}).filter(k=>{const diff=(new Date(date+'T12:00:00')-new Date(k+'T12:00:00'))/86400000;return diff>=0&&diff<7&&state.days[k]?.items?.length});
  const avg=days.length?days.reduce((a,k)=>a+totals(k).veg,0)/days.length:0;
+ const start=dateKeyOffset(date,-dayOfWeek);
+ const weekDates=Array.from({length:dayOfWeek+1},(_,i)=>dateKeyOffset(start,i));
+ const loggedDates=weekDates.filter(k=>(state.days?.[k]?.items||[]).length>0);
+ const count=loggedDates.length;
+ const nutrition={cal:0,protein:0,fiber:0,fluid:0,veg:0,fruit:0,grains:0};
+ loggedDates.forEach(k=>{
+  const items=state.days[k].items;
+  items.forEach(item=>{nutrition.cal+=Number(item.cal)||0;nutrition.protein+=Number(item.protein)||0;nutrition.fiber+=Number(item.fiber)||0;nutrition.fluid+=Number(item.fluid)||0});
+  const groups=totals(k);['veg','fruit','grains'].forEach(key=>nutrition[key]+=groups[key]);
+ });
+ const avgRows=[['Protein','protein','g',state.goals.proteinMin||70],['Fiber','fiber','g',state.goals.fiber||28],['Vegetables','veg','cups',2.5],['Fruit','fruit','cups',2],['Whole grains','grains','servings',3],['Fluids','fluid','oz',state.goals.fluid||64],['Calories','cal','kcal',null]];
+ const weeklyAverages='<div class="bfg-weekly"><h3 style="margin:0 0 4px">Your weekly nutrition averages</h3><p class="small" style="margin:0 0 12px">Sunday–Saturday · '+count+' day'+(count===1?'':'s')+' with food logged. Average per logged day, not including empty days.</p>'+avgRows.map(([label,key,unit,goal])=>{
+  const value=count?Math.round(nutrition[key]/count*10)/10:0;
+  return '<div class="bfg-average-row"><span>'+label+'</span><b>'+(count?value+' '+unit:'—')+(goal?' <span class="bfg-average-goal">/ '+goal+' '+unit+'</span>':'')+'</b></div>';
+ }).join('')+'<p class="small" style="margin:12px 0 0">A higher day can balance a lower day for your weekly average. Try to eat regularly and get a variety of nutrients each day.</p></div>';
  let suggestion='';
  if(!(state.days?.[date]?.items||[]).length)suggestion='Log your first meal to see your estimated food-group progress.';
  else if(today.veg<2.5)suggestion='Vegetables are below today’s target. Adding a side of vegetables could help.';
