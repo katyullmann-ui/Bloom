@@ -1574,7 +1574,7 @@ function update(){
  else if(today.grains<3)suggestion='Consider a whole-grain option with your next meal.';
  else if(week.beans<4)suggestion='Beans or lentils would help build variety this week.';
  else suggestion='You’re building a good mix of foods. Keep following your appetite and variety.';
- root.innerHTML='<div class="bfg-title">🌿 Your food goals</div><div class="bfg-sub">Estimated from meals you log. These are flexible guides, not daily grades.</div><div class="bfg-section">TODAY</div>'+['veg','fruit','grains'].map(k=>bar(k,today[k],config[k][1])).join('')+'<div class="bfg-section">THIS WEEK · SUNDAY–SATURDAY</div>'+['beans','nuts','seafood'].map(k=>bar(k,week[k],config[k][1])).join('')+weeklyAverages+'<div class="bfg-tip"><b>One helpful next choice</b><div>'+suggestion+'</div></div><details class="bfg-detail" id="bfgEdit"><summary>Review or correct serving estimates</summary><p class="small">Meal names do not always show portions. Adjust estimates below when needed. Zero means none of that food group.</p><div id="bfgEditor"></div></details>';
+ root.innerHTML='<div class="bfg-title">🌿 Your food goals</div><div class="bfg-sub">Estimated from meals you log. These are flexible guides, not daily grades.</div><div class="bfg-section">TODAY</div>'+['veg','fruit','grains'].map(k=>bar(k,today[k],config[k][1])).join('')+'<div class="bfg-section">THIS WEEK · MONDAY–SUNDAY</div>'+['beans','nuts','seafood'].map(k=>bar(k,week[k],config[k][1])).join('')+weeklyAverages+'<div class="bfg-tip"><b>One helpful next choice</b><div>'+suggestion+'</div></div><details class="bfg-detail" id="bfgEdit"><summary>Review or correct serving estimates</summary><p class="small">Meal names do not always show portions. Adjust estimates below when needed. Zero means none of that food group.</p><div id="bfgEditor"></div></details>';
  root.querySelector('details').addEventListener('toggle',function(){if(this.open)editor()});
 }
 function editor(){
@@ -1697,5 +1697,35 @@ const old=render;render=function(){old();paint()};paint();
 const home=document.getElementById('bloomTodayOverview');
 const btn=Array.from(home?.querySelectorAll('button')||[]).find(x=>x.textContent.includes('Log workout'));
 if(btn)btn.setAttribute('onclick',"tab('workouts')");
+})();
+</script>
+
+<style id="bloom-simple-home-css">
+#home>#bloomSimpleHome{display:block!important}
+#home>#bloomSimpleHome~*,#home>:not(#bloomSimpleHome){display:none!important}
+#bloomSimpleHome .card{margin-bottom:14px}
+#bloomSimpleHome .actions{flex-wrap:wrap}
+</style>
+<script id="bloom-simple-home-v1">
+(function(){
+const home=document.getElementById('home');if(!home)return;
+const root=document.createElement('div');root.id='bloomSimpleHome';home.prepend(root);
+root.innerHTML='<h2>Your day</h2><div class="card"><h3>💧 Fluids</h3><div class="number" id="bshFluid"></div><div class="actions"><button class="btn secondary small" onclick="addWater(8)">+ 8 oz</button><button class="btn secondary small" onclick="addWater(12)">+ 12 oz</button><button class="btn secondary small" onclick="addWater(16)">+ 16 oz</button><button class="btn secondary small" onclick="addWater(23.67)">+ 700 mL</button></div><div class="actions"><input class="field" id="bshCustom" type="number" min="0.1" step="any" inputmode="decimal" placeholder="Custom oz"><button class="btn small" id="bshAdd">Add</button></div></div><div class="card"><h3>👟 Steps</h3><input class="field" id="bshSteps" type="number" min="0" inputmode="numeric" placeholder="Enter steps"><button class="btn small" id="bshSave">Save steps</button><p class="small" id="bshWeek"></p></div><div class="card"><h3>Exercise</h3><div id="bshWorkouts"></div><div class="actions"><button class="btn small" onclick="tab(\'workouts\')">Plan or log workout</button></div></div>';
+const el=id=>document.getElementById(id);
+const types={lagree:'Lagree',japaneseWalk:'Japanese interval walk',homeStrength:'At-home strength',mobility:'Mobility',upper:'Upper body',lower:'Lower body / glutes',other:'Other workout'};
+function paint(){
+const date=dayKey(),entry=state.days[date]||{};
+el('bshFluid').textContent=fmt((entry.items||[]).reduce((a,x)=>a+(Number(x.fluid)||0),0))+' oz';
+el('bshSteps').value=entry.steps??'';
+const start=new Date(date+'T12:00:00');start.setDate(start.getDate()-(start.getDay()+6)%7);let total=0;
+for(let i=0;i<7;i++){const d=new Date(start);d.setDate(start.getDate()+i);const k=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');total+=Number(state.days[k]?.steps)||0}
+el('bshWeek').textContent=total.toLocaleString()+' steps this week · Monday–Sunday';
+const list=el('bshWorkouts');list.replaceChildren();const items=(state.customWorkouts||[]).filter(w=>w.date===date);
+if(!items.length)list.textContent='No workouts logged for this day.';
+items.forEach(w=>{const row=document.createElement('label');row.className='check';const check=document.createElement('input');check.type='checkbox';check.checked=w.completed!==false;check.onchange=()=>{w.completed=check.checked;save();render()};row.append(check,document.createTextNode(' '+(types[w.type]||w.type)));list.append(row)});
+}
+el('bshAdd').onclick=()=>{const input=el('bshCustom'),n=Number(input.value);if(Number.isFinite(n)&&n>0&&n<=200){input.value='';addWater(n)}};
+el('bshSave').onclick=()=>{const input=el('bshSteps'),n=Number(input.value);if(input.value!==''&&Number.isFinite(n)&&n>=0){day().steps=Math.round(n);save();render()}};
+const old=render;render=function(){old();paint()};paint();
 })();
 </script>
