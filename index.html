@@ -1710,7 +1710,7 @@ if(btn)btn.setAttribute('onclick',"tab('workouts')");
 (function(){
 const home=document.getElementById('home');if(!home)return;
 const root=document.createElement('div');root.id='bloomSimpleHome';home.prepend(root);
-state.goals.steps=39200;state.goals.fluid=68;state.workoutGoals={...(state.workoutGoals||{}),lagree:3,japaneseWalk:3,homeStrength:1};save();
+
 root.innerHTML='<h2>Your day</h2><div class="card"><h3>💧 Fluids</h3><div class="number" id="bshFluid"></div><div id="bshFluidProgress"></div><div class="actions"><button class="btn secondary small" onclick="addWater(8)">+ 8 oz</button><button class="btn secondary small" onclick="addWater(12)">+ 12 oz</button><button class="btn secondary small" onclick="addWater(16)">+ 16 oz</button><button class="btn secondary small" onclick="addWater(23.67)">+ 700 mL</button></div><div class="actions"><input class="field" id="bshCustom" type="number" min="0.1" step="any" inputmode="decimal" placeholder="Custom oz"><button class="btn small" id="bshAdd">Add</button></div></div><div class="card"><h3>👟 Steps</h3><input class="field" id="bshSteps" type="number" min="0" inputmode="numeric" placeholder="Enter steps"><button class="btn small" id="bshSave">Save steps</button><p class="small" id="bshWeek"></p><div id="bshStepProgress"></div></div><div class="card"><h3>Exercise</h3><div id="bshWorkouts"></div><div id="bshExerciseProgress" style="margin-top:16px"></div><div class="actions"><button class="btn small" onclick="tab(\'workouts\')">Plan or log workout</button></div></div>';
 const el=id=>document.getElementById(id);
 const types={lagree:'Lagree',japaneseWalk:'Japanese interval walk',homeStrength:'At-home strength',mobility:'Mobility',upper:'Upper body',lower:'Lower body / glutes',other:'Other workout'};
@@ -1718,12 +1718,12 @@ function progress(label,value,goal,unit){return '<div style="margin:12px 0"><div
 function paint(){
 const date=dayKey(),entry=state.days[date]||{};
 el('bshFluid').textContent=fmt((entry.items||[]).reduce((a,x)=>a+(Number(x.fluid)||0),0))+' oz';
-el('bshFluidProgress').innerHTML=progress('Daily goal',(entry.items||[]).reduce((a,x)=>a+(Number(x.fluid)||0),0),68,'oz');
+el('bshFluidProgress').innerHTML=progress('Daily goal',(entry.items||[]).reduce((a,x)=>a+(Number(x.fluid)||0),0),Number(state.goals.fluid)||68,'oz');
 el('bshSteps').value=entry.steps??'';
 const start=new Date(date+'T12:00:00');start.setDate(start.getDate()-(start.getDay()+6)%7);let total=0,logged=0;const weekKeys=[];
 for(let i=0;i<7;i++){const d=new Date(start);d.setDate(start.getDate()+i);const k=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');weekKeys.push(k);const n=state.days[k]?.steps;if(n!==null&&n!==undefined&&n!==''){total+=Number(n)||0;logged++}}
 el('bshWeek').textContent=(logged?Math.round(total/logged).toLocaleString()+' average steps/day · '+logged+' of 7 days logged':'No steps logged this week')+' · Monday–Sunday';
-el('bshStepProgress').innerHTML=progress('Weekly steps',total,39200,'')+'<p class="small">Goal: average 5,600 per day. No need to make up missed steps.</p>';
+el('bshStepProgress').innerHTML=progress('Weekly steps',total,Number(state.goals.steps)||56000,'')+'<p class="small">Goal: average '+Math.round((Number(state.goals.steps)||56000)/7).toLocaleString()+' per day. No need to make up missed steps.</p>';
 const done=(state.customWorkouts||[]).filter(w=>weekKeys.includes(w.date)&&w.completed!==false);el('bshExerciseProgress').innerHTML='<h4>This week</h4>'+[['lagree',3],['japaneseWalk',3],['homeStrength',1]].map(([k,g])=>progress(types[k],done.filter(w=>w.type===k).length,g,'')).join('');
 const list=el('bshWorkouts');list.replaceChildren();const items=(state.customWorkouts||[]).filter(w=>w.date===date);
 if(!items.length)list.textContent='No workouts logged for this day.';
